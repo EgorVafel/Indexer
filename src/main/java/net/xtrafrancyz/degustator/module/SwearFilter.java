@@ -1,18 +1,5 @@
 package net.xtrafrancyz.degustator.module;
 
-import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageUpdateEvent;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-
-import net.xtrafrancyz.degustator.Degustator;
-import net.xtrafrancyz.degustator.Scheduler;
-import net.xtrafrancyz.degustator.mysql.Row;
-import net.xtrafrancyz.degustator.mysql.SelectResult;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -21,140 +8,147 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import net.xtrafrancyz.degustator.Degustator;
+import net.xtrafrancyz.degustator.Scheduler;
+import net.xtrafrancyz.degustator.mysql.Row;
+import net.xtrafrancyz.degustator.mysql.SelectResult;
+import sx.blah.discord.Discord4J;
+import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageUpdateEvent;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 
 /**
  * @author xtrafrancyz
  */
 public class SwearFilter {
-    private final Degustator degustator;
-    private final Set<Long> enabledChannels;
-    private final Set<String> badWords;
-    private boolean enabled = true;
-    
-    public SwearFilter(Degustator degustator) {
-        this.degustator = degustator;
-        this.enabledChannels = new HashSet<>();
-        this.badWords = new HashSet<>();
-        
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("badwords.txt"), StandardCharsets.UTF_8))) {
-            String word;
-            while ((word = reader.readLine()) != null) {
-                word = normalizeWord(word.trim());
-                if (!word.isEmpty())
-                    badWords.add(word);
-            }
-        } catch (Exception ex) {
-            enabled = false;
-            Discord4J.LOGGER.info("SwearFilter disabled. File 'badwords.txt' not found");
-            return;
-        }
-        
-        try {
-            degustator.mysql.query("CREATE TABLE IF NOT EXISTS `swearfilter` (\n" +
-                "  `channel` bigint(20) NOT NULL,\n" +
-                "  PRIMARY KEY (`channel`)\n" +
-                ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-            
-            SelectResult result = degustator.mysql.select("SELECT channel FROM swearfilter");
-            for (Row row : result.getRows())
-                enabledChannels.add(row.getLong(0));
-        } catch (SQLException e) {
-            enabled = false;
-            e.printStackTrace();
-            Discord4J.LOGGER.info("SwearFilter disabled. Database error");
-            return;
-        }
-        
-        degustator.client.getDispatcher().registerListeners(this);
-    }
-    
-    @EventSubscriber
-    public void onMessage(MessageReceivedEvent event) {
-        if (isFilterable(event))
-            checkMessage(event.getMessage());
-    }
-    
-    @EventSubscriber
-    public void onMessageEdit(MessageUpdateEvent event) {
-        if (isFilterable(event))
-            checkMessage(event.getNewMessage());
-    }
-    
-    private void checkMessage(IMessage message) {
-        if (hasSwear(message.getContent())) {
-            try {
-                message.delete();
-                IMessage rs = message.getChannel().sendMessage("**" + message.getAuthor().getDisplayName(message.getGuild()) + "**, пожалуйста, следите за словами.");
-                Scheduler.schedule(rs::delete, 5, TimeUnit.SECONDS);
-            } catch (Exception ignored) {}
-        }
-    }
-    
-    private boolean hasSwear(String message) {
-        for (String word : message.split(" "))
-            if (badWords.contains(normalizeWord(word)))
-                return true;
-        return false;
-    }
-    
-    public boolean isEnabled() {
-        return enabled;
-    }
-    
-    public boolean isActive(IChannel channel) {
-        return enabledChannels.contains(channel.getLongID());
-    }
-    
-    public boolean isFilterable(MessageEvent event) {
-        return isActive(event.getChannel()) && (!event.getAuthor().equals(event.getGuild().getOwner()) && !event.getAuthor().equals(degustator.client.getOurUser()));
-    }
-    
-    public void disableFor(IChannel channel) {
-        if (!enabled || !isActive(channel))
-            return;
-        enabledChannels.remove(channel.getLongID());
-        
-        try {
-            degustator.mysql.query("DELETE FROM swearfilter WHERE channel = ?", ps -> ps.setLong(1, channel.getLongID()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void enableFor(IChannel channel) {
-        if (!enabled || isActive(channel))
-            return;
-        enabledChannels.add(channel.getLongID());
-        
-        try {
-            degustator.mysql.query("INSERT INTO swearfilter (channel) VALUES (?)", ps -> ps.setLong(1, channel.getLongID()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    private static String normalizeWord(String str) {
-        if (str.isEmpty())
-            return "";
-        char[] chars = str.toCharArray();
-        int len = chars.length;
-        int st = 0;
-        while (st < len && !Character.isAlphabetic(chars[st]))
-            st++;
-        while (st < len && !Character.isAlphabetic(chars[len - 1]))
-            len--;
-        str = ((st > 0) || (len < chars.length)) ? str.substring(st, len) : str;
-        return str.toLowerCase()
-            .replace('a', 'а')
-            .replace('e', 'е')
-            .replace('э', 'е')
-            .replace('ё', 'е')
-            .replace('y', 'у')
-            .replace('p', 'р')
-            .replace('x', 'х')
-            .replace('o', 'о')
-            .replace('c', 'с');
-    }
+	private static String normalizeWord(String str) {
+		if (str.isEmpty())
+			return "";
+		char[] chars = str.toCharArray();
+		int len = chars.length;
+		int st = 0;
+		while (st < len && !Character.isAlphabetic(chars[st]))
+			st++;
+		while (st < len && !Character.isAlphabetic(chars[len - 1]))
+			len--;
+		str = st > 0 || len < chars.length ? str.substring(st, len) : str;
+		return str.toLowerCase().replace('a', 'а').replace('e', 'е').replace('э', 'е').replace('ё', 'е')
+				.replace('y', 'у').replace('p', 'р').replace('x', 'х').replace('o', 'о').replace('c', 'с');
+	}
+
+	private final Degustator degustator;
+	private final Set<Long> enabledChannels;
+	private final Set<String> badWords;
+
+	private boolean enabled = true;
+
+	public SwearFilter(Degustator degustator) {
+		this.degustator = degustator;
+		enabledChannels = new HashSet<>();
+		badWords = new HashSet<>();
+
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(new FileInputStream("badwords.txt"), StandardCharsets.UTF_8))) {
+			String word;
+			while ((word = reader.readLine()) != null) {
+				word = normalizeWord(word.trim());
+				if (!word.isEmpty())
+					badWords.add(word);
+			}
+		} catch (Exception ex) {
+			enabled = false;
+			Discord4J.LOGGER.info("SwearFilter disabled. File 'badwords.txt' not found");
+			return;
+		}
+
+		try {
+			degustator.mysql.query("CREATE TABLE IF NOT EXISTS `swearfilter` (\n" + "  `channel` bigint(20) NOT NULL,\n"
+					+ "  PRIMARY KEY (`channel`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			SelectResult result = degustator.mysql.select("SELECT channel FROM swearfilter");
+			for (Row row : result.getRows())
+				enabledChannels.add(row.getLong(0));
+		} catch (SQLException e) {
+			enabled = false;
+			e.printStackTrace();
+			Discord4J.LOGGER.info("SwearFilter disabled. Database error");
+			return;
+		}
+
+		degustator.client.getDispatcher().registerListeners(this);
+	}
+
+	private void checkMessage(IMessage message) {
+		if (hasSwear(message.getContent()))
+			try {
+				message.delete();
+				IMessage rs = message.getChannel()
+						.sendMessage("**" + message.getAuthor().getDisplayName(message.getGuild())
+								+ "**, пожалуйста, следите за словами.");
+				Scheduler.schedule(rs::delete, 5, TimeUnit.SECONDS);
+			} catch (Exception ignored) {
+			}
+	}
+
+	public void disableFor(IChannel channel) {
+		if (!enabled || !isActive(channel))
+			return;
+		enabledChannels.remove(channel.getLongID());
+
+		try {
+			degustator.mysql.query("DELETE FROM swearfilter WHERE channel = ?",
+					ps -> ps.setLong(1, channel.getLongID()));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void enableFor(IChannel channel) {
+		if (!enabled || isActive(channel))
+			return;
+		enabledChannels.add(channel.getLongID());
+
+		try {
+			degustator.mysql.query("INSERT INTO swearfilter (channel) VALUES (?)",
+					ps -> ps.setLong(1, channel.getLongID()));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private boolean hasSwear(String message) {
+		for (String word : message.split(" "))
+			if (badWords.contains(normalizeWord(word)))
+				return true;
+		return false;
+	}
+
+	public boolean isActive(IChannel channel) {
+		return enabledChannels.contains(channel.getLongID());
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public boolean isFilterable(MessageEvent event) {
+		return isActive(event.getChannel()) && !event.getAuthor().equals(event.getGuild().getOwner())
+				&& !event.getAuthor().equals(degustator.client.getOurUser());
+	}
+
+	@EventSubscriber
+	public void onMessage(MessageReceivedEvent event) {
+		if (isFilterable(event))
+			checkMessage(event.getMessage());
+	}
+
+	@EventSubscriber
+	public void onMessageEdit(MessageUpdateEvent event) {
+		if (isFilterable(event))
+			checkMessage(event.getNewMessage());
+	}
 }

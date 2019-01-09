@@ -1,17 +1,26 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+* text eol=lf
+*.bat text eol=crlf
+*.sh text eol=lf
 
-# Custom for Visual Studio
-*.cs     diff=csharp
+*.patch text eol=lf
+*.java text eol=lf
+*.scala text eol=lf
+*.groovy text eol=lf
 
-# Standard to msysgit
-*.doc	 diff=astextplain
-*.DOC	 diff=astextplain
-*.docx diff=astextplain
-*.DOCX diff=astextplain
-*.dot  diff=astextplain
-*.DOT  diff=astextplain
-*.pdf  diff=astextplain
-*.PDF	 diff=astextplain
-*.rtf	 diff=astextplain
-*.RTF	 diff=astextplain
+*.gradle text eol=crlf
+gradle.properties text eol=crlf
+/gradle/wrapper/gradle-wrapper.properties text eol=crlf
+*.cfg text eol=lf
+
+*.png binary
+*.jar binary
+*.war binary
+*.lzma binary
+*.zip binary
+*.gzip binary
+*.dll binary
+*.so binary
+*.exe binary
+
+*.gitattributes text eol=crlf
+*.gitignore text eol=crlf
