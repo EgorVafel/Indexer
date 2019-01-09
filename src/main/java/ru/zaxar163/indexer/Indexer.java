@@ -41,7 +41,7 @@ public class Indexer {
 
 	public final IDiscordClient client;
 	public final MysqlPool mysql;
-	private final CommandManager commandManager;
+	public final CommandManager commandManager;
 
 	public final SwearFilter swearFilter;
 
@@ -55,7 +55,6 @@ public class Indexer {
 
 		commandManager = new CommandManager(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
-		// commandManager.registerCommand(new InfoCommand());
 		commandManager.registerCommand(new JokeCommand());
 		commandManager.registerCommand(new SwearFilterCommand());
 		commandManager.registerCommand(new MassBanCommand());

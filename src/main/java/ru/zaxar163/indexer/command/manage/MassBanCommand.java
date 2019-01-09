@@ -5,9 +5,6 @@ import sx.blah.discord.Discord4J;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
-/**
- * @author xtrafrancyz
- */
 public class MassBanCommand extends Command {
 	public MassBanCommand() {
 		super("massban", "`!massban` - массовый бан людей на сервере");
@@ -15,7 +12,7 @@ public class MassBanCommand extends Command {
 
 	@Override
 	public boolean canUse(IMessage message) {
-		return message.getGuild().getOwnerLongID() == message.getAuthor().getLongID();
+		return message.getAuthor().getLongID() == message.getGuild().getOwnerLongID();
 	}
 
 	@Override

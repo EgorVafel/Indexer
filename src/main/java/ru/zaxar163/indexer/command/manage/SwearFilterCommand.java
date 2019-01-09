@@ -15,7 +15,7 @@ public class SwearFilterCommand extends Command {
 
 	@Override
 	public boolean canUse(IMessage message) {
-		return message.getGuild().getOwnerLongID() == message.getAuthor().getLongID();
+		return message.getAuthor().hasRole(Indexer.instance().commandManager.developer);
 	}
 
 	@Override
