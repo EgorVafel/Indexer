@@ -1,6 +1,6 @@
-package net.xtrafrancyz.degustator.command.manage;
+package ru.zaxar163.indexer.command.manage;
 
-import net.xtrafrancyz.degustator.command.Command;
+import ru.zaxar163.indexer.command.Command;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;

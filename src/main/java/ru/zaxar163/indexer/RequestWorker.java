@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator;
+package ru.zaxar163.indexer;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -8,10 +8,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by xtrafrancyz on 11.10.2015.
- */
-public class Scheduler {
+public class RequestWorker {
 	static class Task implements Runnable {
 		int id;
 		ScheduledFuture<?> future;
@@ -61,18 +58,6 @@ public class Scheduler {
 	public static int schedule(Runnable runnable, long delay, TimeUnit timeUnits) {
 		Task task = createTask(runnable);
 		task.future = threadPool.schedule(task, delay, timeUnits);
-		return task.id;
-	}
-
-	public static int scheduleAtFixedRate(Runnable runnable, long initialDelay, long delay, TimeUnit timeUnits) {
-		Task task = createTask(runnable);
-		task.future = threadPool.scheduleAtFixedRate(task, initialDelay, delay, timeUnits);
-		return task.id;
-	}
-
-	public static int scheduleWithFixedDelay(Runnable runnable, long initialDelay, long delay, TimeUnit timeUnits) {
-		Task task = createTask(runnable);
-		task.future = threadPool.scheduleWithFixedDelay(task, initialDelay, delay, timeUnits);
 		return task.id;
 	}
 

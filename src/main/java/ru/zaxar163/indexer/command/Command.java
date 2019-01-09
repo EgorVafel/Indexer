@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator.command;
+package ru.zaxar163.indexer.command;
 
 import java.util.ArrayList;
 import java.util.List;

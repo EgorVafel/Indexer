@@ -1,8 +1,8 @@
-package net.xtrafrancyz.degustator.command.manage;
+package ru.zaxar163.indexer.command.manage;
 
-import net.xtrafrancyz.degustator.Degustator;
-import net.xtrafrancyz.degustator.command.Command;
-import net.xtrafrancyz.degustator.module.SwearFilter;
+import ru.zaxar163.indexer.Indexer;
+import ru.zaxar163.indexer.command.Command;
+import ru.zaxar163.indexer.module.SwearFilter;
 import sx.blah.discord.handle.obj.IMessage;
 
 /**
@@ -20,7 +20,7 @@ public class SwearFilterCommand extends Command {
 
 	@Override
 	public void onCommand(IMessage message, String[] args) throws Exception {
-		SwearFilter swearFilter = Degustator.instance().swearFilter;
+		SwearFilter swearFilter = Indexer.instance().swearFilter;
 		if (!swearFilter.isEnabled()) {
 			message.getChannel().sendMessage("Фильтр мата не настроен.");
 			message.delete();

@@ -1,18 +1,18 @@
-package net.xtrafrancyz.degustator.command;
+package ru.zaxar163.indexer.command;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.xtrafrancyz.degustator.Degustator;
+import ru.zaxar163.indexer.Indexer;
 import sx.blah.discord.handle.obj.IMessage;
 
 public class CommandManager {
-	public final Degustator app;
+	public final Indexer app;
 	public Map<String, Command> registered;
 	public Map<String, Command> alises;
 
-	public CommandManager(Degustator app) {
+	public CommandManager(Indexer app) {
 		this.app = app;
 		registered = new HashMap<>();
 		alises = new HashMap<>();

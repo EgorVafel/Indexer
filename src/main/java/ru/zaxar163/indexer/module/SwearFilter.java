@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator.module;
+package ru.zaxar163.indexer.module;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -9,10 +9,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import net.xtrafrancyz.degustator.Degustator;
-import net.xtrafrancyz.degustator.Scheduler;
-import net.xtrafrancyz.degustator.mysql.Row;
-import net.xtrafrancyz.degustator.mysql.SelectResult;
+import ru.zaxar163.indexer.Indexer;
+import ru.zaxar163.indexer.RequestWorker;
+import ru.zaxar163.indexer.mysql.Row;
+import ru.zaxar163.indexer.mysql.SelectResult;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent;
@@ -40,14 +40,14 @@ public class SwearFilter {
 				.replace('y', 'у').replace('p', 'р').replace('x', 'х').replace('o', 'о').replace('c', 'с');
 	}
 
-	private final Degustator degustator;
+	private final Indexer indexer;
 	private final Set<Long> enabledChannels;
 	private final Set<String> badWords;
 
 	private boolean enabled = true;
 
-	public SwearFilter(Degustator degustator) {
-		this.degustator = degustator;
+	public SwearFilter(Indexer indexer) {
+		this.indexer = indexer;
 		enabledChannels = new HashSet<>();
 		badWords = new HashSet<>();
 
@@ -66,10 +66,10 @@ public class SwearFilter {
 		}
 
 		try {
-			degustator.mysql.query("CREATE TABLE IF NOT EXISTS `swearfilter` (\n" + "  `channel` bigint(20) NOT NULL,\n"
+			indexer.mysql.query("CREATE TABLE IF NOT EXISTS `swearfilter` (\n" + "  `channel` bigint(20) NOT NULL,\n"
 					+ "  PRIMARY KEY (`channel`)\n" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
-			SelectResult result = degustator.mysql.select("SELECT channel FROM swearfilter");
+			SelectResult result = indexer.mysql.select("SELECT channel FROM swearfilter");
 			for (Row row : result.getRows())
 				enabledChannels.add(row.getLong(0));
 		} catch (SQLException e) {
@@ -79,7 +79,7 @@ public class SwearFilter {
 			return;
 		}
 
-		degustator.client.getDispatcher().registerListeners(this);
+		indexer.client.getDispatcher().registerListeners(this);
 	}
 
 	private void checkMessage(IMessage message) {
@@ -89,7 +89,7 @@ public class SwearFilter {
 				IMessage rs = message.getChannel()
 						.sendMessage("**" + message.getAuthor().getDisplayName(message.getGuild())
 								+ "**, пожалуйста, следите за словами.");
-				Scheduler.schedule(rs::delete, 5, TimeUnit.SECONDS);
+				RequestWorker.schedule(rs::delete, 5, TimeUnit.SECONDS);
 			} catch (Exception ignored) {
 			}
 	}
@@ -100,7 +100,7 @@ public class SwearFilter {
 		enabledChannels.remove(channel.getLongID());
 
 		try {
-			degustator.mysql.query("DELETE FROM swearfilter WHERE channel = ?",
+			indexer.mysql.query("DELETE FROM swearfilter WHERE channel = ?",
 					ps -> ps.setLong(1, channel.getLongID()));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -113,7 +113,7 @@ public class SwearFilter {
 		enabledChannels.add(channel.getLongID());
 
 		try {
-			degustator.mysql.query("INSERT INTO swearfilter (channel) VALUES (?)",
+			indexer.mysql.query("INSERT INTO swearfilter (channel) VALUES (?)",
 					ps -> ps.setLong(1, channel.getLongID()));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -137,7 +137,7 @@ public class SwearFilter {
 
 	public boolean isFilterable(MessageEvent event) {
 		return isActive(event.getChannel()) && !event.getAuthor().equals(event.getGuild().getOwner())
-				&& !event.getAuthor().equals(degustator.client.getOurUser());
+				&& !event.getAuthor().equals(indexer.client.getOurUser());
 	}
 
 	@EventSubscriber

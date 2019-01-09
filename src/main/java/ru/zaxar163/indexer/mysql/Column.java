@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator.mysql;
+package ru.zaxar163.indexer.mysql;
 
 public class Column {
 	final String name;

@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator.mysql;
+package ru.zaxar163.indexer.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,14 +10,14 @@ import java.util.ArrayList;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
-import net.xtrafrancyz.degustator.Config;
-import net.xtrafrancyz.degustator.Degustator;
+import ru.zaxar163.indexer.Config;
+import ru.zaxar163.indexer.Indexer;
 
 public class MysqlPool {
 	private MysqlDataSource pool;
 
-	public MysqlPool(Degustator degustator) throws Exception {
-		Config.Mysql config = degustator.config.mysql;
+	public MysqlPool(Indexer indexer) throws Exception {
+		Config.Mysql config = indexer.config.mysql;
 
 		pool = new MysqlDataSource();
 		pool.setServerName(config.host);

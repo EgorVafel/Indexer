@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator.mysql;
+package ru.zaxar163.indexer.mysql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -1,4 +1,4 @@
-package ru.zaxar163;
+package ru.zaxar163.indexer;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;

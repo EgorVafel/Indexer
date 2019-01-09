@@ -1,9 +1,9 @@
-package net.xtrafrancyz.degustator.command.standard;
+package ru.zaxar163.indexer.command.standard;
 
 import java.util.Map;
 
-import net.xtrafrancyz.degustator.command.Command;
-import net.xtrafrancyz.degustator.command.CommandManager;
+import ru.zaxar163.indexer.command.Command;
+import ru.zaxar163.indexer.command.CommandManager;
 import sx.blah.discord.handle.obj.IMessage;
 
 /**

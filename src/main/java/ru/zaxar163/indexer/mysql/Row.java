@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator.mysql;
+package ru.zaxar163.indexer.mysql;
 
 import java.util.ArrayList;
 import java.util.List;

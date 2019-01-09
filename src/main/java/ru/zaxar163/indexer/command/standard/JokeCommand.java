@@ -1,8 +1,8 @@
-package net.xtrafrancyz.degustator.command.standard;
+package ru.zaxar163.indexer.command.standard;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import net.xtrafrancyz.degustator.command.Command;
+import ru.zaxar163.indexer.command.Command;
 import sx.blah.discord.handle.obj.IMessage;
 
 /**

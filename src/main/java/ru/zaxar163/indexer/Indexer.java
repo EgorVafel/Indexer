@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator;
+package ru.zaxar163.indexer;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,13 +8,13 @@ import java.nio.file.Files;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
-import net.xtrafrancyz.degustator.command.CommandManager;
-import net.xtrafrancyz.degustator.command.manage.MassBanCommand;
-import net.xtrafrancyz.degustator.command.manage.SwearFilterCommand;
-import net.xtrafrancyz.degustator.command.standard.HelpCommand;
-import net.xtrafrancyz.degustator.command.standard.JokeCommand;
-import net.xtrafrancyz.degustator.module.SwearFilter;
-import net.xtrafrancyz.degustator.mysql.MysqlPool;
+import ru.zaxar163.indexer.command.CommandManager;
+import ru.zaxar163.indexer.command.manage.MassBanCommand;
+import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
+import ru.zaxar163.indexer.command.standard.HelpCommand;
+import ru.zaxar163.indexer.command.standard.JokeCommand;
+import ru.zaxar163.indexer.module.SwearFilter;
+import ru.zaxar163.indexer.mysql.MysqlPool;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -25,15 +25,15 @@ import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
-public class Degustator {
-	private static Degustator instance;
+public class Indexer {
+	private static Indexer instance;
 
-	public static Degustator instance() {
+	public static Indexer instance() {
 		return instance;
 	}
 
 	public static void main(String[] args) throws Exception {
-		new Degustator();
+		new Indexer();
 	}
 
 	public final Gson gson = new Gson();
@@ -45,10 +45,10 @@ public class Degustator {
 
 	public final SwearFilter swearFilter;
 
-	private Degustator() throws Exception {
+	private Indexer() throws Exception {
 		instance = this;
 		readConfig();
-		Scheduler.init(2);
+		RequestWorker.init(2);
 
 		client = new ClientBuilder().withToken(config.token).build();
 		mysql = new MysqlPool(this);
@@ -73,7 +73,7 @@ public class Degustator {
 
 	@EventSubscriber
 	public void onReady(ReadyEvent event) throws RateLimitException, DiscordException {
-		client.changePresence(StatusType.ONLINE, ActivityType.WATCHING, "прон | !help");
+		client.changePresence(StatusType.ONLINE, ActivityType.WATCHING, "сервера mc | !help");
 	}
 
 	private void readConfig() throws IOException {

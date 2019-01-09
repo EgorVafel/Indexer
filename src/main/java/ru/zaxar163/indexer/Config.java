@@ -1,4 +1,4 @@
-package net.xtrafrancyz.degustator;
+package ru.zaxar163.indexer;
 
 /**
  * @author xtrafrancyz
