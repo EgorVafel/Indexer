@@ -17,10 +17,16 @@ configurations {
 	compile.extendsFrom bundle, pack
 }
 
-def mainClassName = ""
+String mainClassName = "ru.zaxar163.indexer.Indexer"
+String mainAgentName = "ru.zaxar163.indexer.StarterAgent"
+
 jar {
 	from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
-	manifest.attributes("Main-Class": mainClassName)
+	manifest.attributes("Main-Class": mainClassName,
+		"Premain-Class": mainAgentName,
+		"Can-Redefine-Classes": "true",
+		"Can-Retransform-Classes": "true",
+		"Can-Set-Native-Method-Prefix": "true")
 }
 
 

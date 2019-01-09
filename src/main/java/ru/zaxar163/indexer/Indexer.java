@@ -26,7 +26,7 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
 public class Indexer {
-	private static Indexer instance;
+	private static Indexer instance = null;
 
 	public static Indexer instance() {
 		return instance;
