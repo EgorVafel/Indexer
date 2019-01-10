@@ -13,7 +13,7 @@ public class CommandManager {
 	public Map<String, Command> registered;
 	public Map<String, Command> alises;
 	public IRole developer = null;
-	
+
 	public CommandManager(Indexer app) {
 		this.app = app;
 		registered = new HashMap<>();
@@ -29,7 +29,9 @@ public class CommandManager {
 
 	public void process(IMessage message) {
 		try {
-			if (developer == null) developer = message.getGuild().getRoles().stream().filter(e -> e.getName().equals("Developer")).findFirst().get();
+			if (developer == null)
+				developer = message.getGuild().getRoles().stream().filter(e -> e.getName().equals("Developer"))
+						.findFirst().get();
 			String text = message.getContent().substring(1);
 			String[] args = text.split(" ");
 			Command command = getCommand(args[0].toLowerCase());

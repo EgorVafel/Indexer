@@ -1,13 +1,20 @@
 package ru.zaxar163.indexer.module;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.RequestWorker;
@@ -21,10 +28,21 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageUpdateEve
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 
-/**
- * @author xtrafrancyz
- */
 public class SwearFilter {
+	private static final OpenOption[] WRITE_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+			StandardOpenOption.TRUNCATE_EXISTING };
+
+	public static void main(String... args) throws Throwable {
+		try (BufferedWriter out = Files.newBufferedWriter(Paths.get("out_swear.txt"), StandardCharsets.UTF_8,
+				WRITE_OPTIONS)) {
+			List<String> lines = Files.readAllLines(Paths.get("in_swear.txt"), StandardCharsets.UTF_8).stream()
+					.filter(e -> !e.isEmpty()).map(e -> e.replace('|', '\n')).collect(Collectors.toList());
+			for (String line : lines)
+				out.append(line);
+			out.flush();
+		}
+	}
+
 	private static String normalizeWord(String str) {
 		if (str.isEmpty())
 			return "";
@@ -37,11 +55,12 @@ public class SwearFilter {
 			len--;
 		str = st > 0 || len < chars.length ? str.substring(st, len) : str;
 		return str.toLowerCase().replace('a', 'а').replace('e', 'е').replace('э', 'е').replace('ё', 'е')
-				.replace('y', 'у').replace('p', 'р').replace('x', 'х').replace('o', 'о').replace('c', 'с');
+				.replace('y', 'у').replace('p', 'р').replace('x', 'х').replace('o', 'о').replace('c', 'с').replace('s', 'с');
 	}
 
 	private final Indexer indexer;
 	private final Set<Long> enabledChannels;
+
 	private final Set<String> badWords;
 
 	private boolean enabled = true;
@@ -100,8 +119,7 @@ public class SwearFilter {
 		enabledChannels.remove(channel.getLongID());
 
 		try {
-			indexer.mysql.query("DELETE FROM swearfilter WHERE channel = ?",
-					ps -> ps.setLong(1, channel.getLongID()));
+			indexer.mysql.query("DELETE FROM swearfilter WHERE channel = ?", ps -> ps.setLong(1, channel.getLongID()));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
