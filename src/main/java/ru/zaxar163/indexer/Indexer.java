@@ -38,7 +38,8 @@ public class Indexer {
 		new Indexer();
 		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
-			if (r.readLine().contains("stop")) System.exit(0);
+			if (r.readLine().contains("stop"))
+				System.exit(0);
 		}
 	}
 

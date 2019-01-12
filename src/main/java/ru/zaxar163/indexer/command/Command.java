@@ -20,7 +20,8 @@ public abstract class Command {
 	}
 
 	public boolean canUse(IMessage message) {
-		return true;
+		String name = message.getChannel().getName().toLowerCase();
+		return name.contains("offtop") || name.contains("fft") || name.contains("bot");
 	}
 
 	public abstract void onCommand(IMessage message, String[] args) throws Exception;
