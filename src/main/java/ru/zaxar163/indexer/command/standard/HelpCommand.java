@@ -6,9 +6,6 @@ import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.command.CommandManager;
 import sx.blah.discord.handle.obj.IMessage;
 
-/**
- * @author xtrafrancyz
- */
 public class HelpCommand extends Command {
 	private final CommandManager commands;
 
@@ -22,7 +19,7 @@ public class HelpCommand extends Command {
 		if (args.length != 0) {
 			Command command = commands.getCommand(args[0]);
 			if (command == null) {
-				message.reply("нет такой команды");
+				message.getAuthor().getOrCreatePMChannel().sendMessage("Нет такой команды.");
 				return;
 			}
 			String msg;
@@ -30,10 +27,10 @@ public class HelpCommand extends Command {
 				msg = command.help;
 			else
 				msg = "У команды !" + command.command + " нет описания :frowning2:";
-			message.getChannel().sendMessage(msg);
+			message.getAuthor().getOrCreatePMChannel().sendMessage(msg);
 			return;
 		}
-		String msg = "\nДоступные для вас команды: ```";
+		String msg = "Доступные для вас команды: ```";
 		boolean first = true;
 		for (Map.Entry<String, Command> entry : commands.registered.entrySet()) {
 			if (!entry.getValue().canUse(message))
@@ -46,6 +43,6 @@ public class HelpCommand extends Command {
 		}
 		msg += "```";
 		msg += "Напишите `!help <команда>` чтобы посмотреть описание команды";
-		message.reply(msg);
+		message.getAuthor().getOrCreatePMChannel().sendMessage(msg);
 	}
 }

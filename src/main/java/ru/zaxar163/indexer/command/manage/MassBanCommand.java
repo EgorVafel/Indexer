@@ -34,6 +34,6 @@ public class MassBanCommand extends Command {
 				message.getGuild().banUser(user.getLongID(), 1);
 				bans++;
 			}
-		message.getChannel().sendMessage("Забанено юзеров: " + bans);
+		message.getChannel().sendMessage("Забанено пользователей: " + bans);
 	}
 }

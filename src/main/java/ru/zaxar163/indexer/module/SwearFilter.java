@@ -113,10 +113,12 @@ public class SwearFilter {
 		if (hasSwear(message.getContent()))
 			try {
 				message.delete();
-				IMessage rs = message.getChannel()
+				/*IMessage rs = message.getChannel()
 						.sendMessage("**" + message.getAuthor().getDisplayName(message.getGuild())
 								+ "**, пожалуйста, следите за словами.");
-				RequestWorker.schedule(rs::delete, 5, TimeUnit.SECONDS);
+				RequestWorker.schedule(rs::delete, 5, TimeUnit.SECONDS);*/
+				indexer.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + message.getAuthor().mention()
+								+ "**, пожалуйста, следите за словами.");
 			} catch (Exception ignored) {
 			}
 	}
