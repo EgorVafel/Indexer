@@ -37,19 +37,6 @@ public class Indexer {
 	public static void main(String[] args) throws Exception {
 		new Indexer();
 		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
-		new Thread(() -> {
-			while (true) {
-				if (instance() != null) {
-					try {
-						if (!instance.client.isLoggedIn()) {
-							instance.client.login();
-						}
-					} catch (Throwable t) {
-						t.printStackTrace(System.err);
-					}
-				}
-			}
-		}, "Bot safe thread.").start();
 		while (true) {
 			if (r.readLine().contains("stop"))
 				System.exit(0);
