@@ -41,3 +41,10 @@ dependencies {
 	bundle 'commons-io:commons-io:2.6'
 	bundle 'mysql:mysql-connector-java:8.0.13'
 }
+
+task dumpLibs(type: Copy) {
+	into "$buildDir/libs/libraries"
+	from configurations.bundle
+}
+
+build.dependsOn tasks.dumpLibs
