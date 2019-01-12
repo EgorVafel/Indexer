@@ -1,8 +1,10 @@
 package ru.zaxar163.indexer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 
 import com.google.gson.Gson;
@@ -34,6 +36,10 @@ public class Indexer {
 
 	public static void main(String[] args) throws Exception {
 		new Indexer();
+		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+		while (true) {
+			if (r.readLine().contains("stop")) System.exit(0);
+		}
 	}
 
 	public final Gson gson = new Gson();

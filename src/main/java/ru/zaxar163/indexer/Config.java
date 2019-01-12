@@ -15,16 +15,7 @@ public class Config {
 		public String database = "bot";
 	}
 
-	public static class Web {
-		public String host = "0.0.0.0";
-		public int port = 8765;
-		public String secret = "secret";
-	}
-
 	public String token = "MY_BOT_TOKEN";
-	public String vimeApiToken = "VIMEWORLD_API_TOKEN";
 
 	public Mysql mysql = new Mysql();
-
-	public Web web = new Web();
 }
