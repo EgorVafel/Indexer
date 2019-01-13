@@ -10,18 +10,19 @@ public abstract class Command {
 	public final String help;
 	public final List<String> aliases = new ArrayList<>();
 
-	public Command(String command) {
+	public Command(final String command) {
 		this(command, null);
 	}
 
-	public Command(String command, String help) {
+	public Command(final String command, final String help) {
 		this.command = command;
 		this.help = help;
 	}
 
-	public boolean canUse(Message message) {
-		if (!message.getChannel().asServerChannel().isPresent()) return false;
-		String name = message.getChannel().asServerChannel().get().getName().toLowerCase();
+	public boolean canUse(final Message message) {
+		if (!message.getChannel().asServerChannel().isPresent())
+			return false;
+		final String name = message.getChannel().asServerChannel().get().getName().toLowerCase();
 		return name.contains("offtop") || name.contains("fft") || name.contains("bot");
 	}
 

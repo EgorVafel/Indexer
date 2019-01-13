@@ -10,15 +10,15 @@ import ru.zaxar163.indexer.command.CommandManager;
 public class HelpCommand extends Command {
 	private final CommandManager commands;
 
-	public HelpCommand(CommandManager commands) {
+	public HelpCommand(final CommandManager commands) {
 		super("help", "`!help` - список команд\n" + "`!help <команда>` - информация о команде");
 		this.commands = commands;
 	}
 
 	@Override
-	public void onCommand(Message message, String[] args) throws Exception {
+	public void onCommand(final Message message, final String[] args) throws Exception {
 		if (args.length != 0) {
-			Command command = commands.getCommand(args[0]);
+			final Command command = commands.getCommand(args[0]);
 			if (command == null) {
 				message.getChannel().sendMessage("Нет такой команды.");
 				return;
@@ -33,7 +33,7 @@ public class HelpCommand extends Command {
 		}
 		String msg = "Доступные для вас команды: ```";
 		boolean first = true;
-		for (Map.Entry<String, Command> entry : commands.registered.entrySet()) {
+		for (final Map.Entry<String, Command> entry : commands.registered.entrySet()) {
 			if (!entry.getValue().canUse(message))
 				continue;
 			if (!first)

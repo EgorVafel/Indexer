@@ -17,12 +17,12 @@ public final class StarterAgent {
 	private static final class StarterVisitor extends SimpleFileVisitor<Path> {
 		private final Instrumentation inst;
 
-		private StarterVisitor(Instrumentation inst) {
+		private StarterVisitor(final Instrumentation inst) {
 			this.inst = inst;
 		}
 
 		@Override
-		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+		public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
 			if (file.toFile().getName().endsWith(".jar"))
 				inst.appendToSystemClassLoaderSearch(new JarFile(file.toFile()));
 			return super.visitFile(file, attrs);
@@ -33,16 +33,16 @@ public final class StarterAgent {
 	private static boolean isStarted = false;
 
 	public static boolean isAgentStarted() {
-		return isStarted;
+		return StarterAgent.isStarted;
 	}
 
-	public static void premain(String agentArgument, Instrumentation inst) {
+	public static void premain(final String agentArgument, final Instrumentation inst) {
 		StarterAgent.inst = inst;
-		isStarted = true;
+		StarterAgent.isStarted = true;
 		try {
 			Files.walkFileTree(Paths.get("libraries"), Collections.singleton(FileVisitOption.FOLLOW_LINKS),
 					Integer.MAX_VALUE, new StarterVisitor(inst));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace(System.err);
 		}
 	}

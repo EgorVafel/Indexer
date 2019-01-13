@@ -60,7 +60,7 @@ public class JokeCommand extends Command {
 	}
 
 	@Override
-	public void onCommand(Message message, String[] args) throws Exception {
+	public void onCommand(final Message message, final String[] args) throws Exception {
 		message.getChannel()
 				.sendMessage(JokeCommand.JOKES[ThreadLocalRandom.current().nextInt(JokeCommand.JOKES.length)]);
 	}

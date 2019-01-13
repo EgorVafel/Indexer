@@ -15,15 +15,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.javacord.api.entity.channel.Channel;
+import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
+import org.javacord.api.listener.message.MessageCreateListener;
+import org.javacord.api.listener.message.MessageEditListener;
 
 import ru.zaxar163.indexer.Indexer;
 
@@ -31,12 +29,12 @@ public class SwearFilter {
 	private static final OpenOption[] WRITE_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.WRITE,
 			StandardOpenOption.TRUNCATE_EXISTING };
 
-	public static void main(String... args) throws Throwable {
+	public static void main(final String... args) throws Throwable {
 		try (BufferedWriter out = Files.newBufferedWriter(Paths.get("out_swear.txt"), StandardCharsets.UTF_8,
-				WRITE_OPTIONS)) {
-			List<String> lines = Files.readAllLines(Paths.get("in_swear.txt"), StandardCharsets.UTF_8).stream()
+				SwearFilter.WRITE_OPTIONS)) {
+			final List<String> lines = Files.readAllLines(Paths.get("in_swear.txt"), StandardCharsets.UTF_8).stream()
 					.filter(e -> !e.isEmpty()).map(e -> e.replace('|', '\n')).collect(Collectors.toList());
-			for (String line : lines)
+			for (final String line : lines)
 				out.append(line);
 			out.flush();
 		}
@@ -45,7 +43,7 @@ public class SwearFilter {
 	private static String normalizeWord(String str) {
 		if (str.isEmpty())
 			return "";
-		char[] chars = str.toCharArray();
+		final char[] chars = str.toCharArray();
 		int len = chars.length;
 		int st = 0;
 		while (st < len && !Character.isAlphabetic(chars[st]))
@@ -64,19 +62,30 @@ public class SwearFilter {
 
 	private boolean enabled = true;
 
-	public SwearFilter(Indexer indexer) {
+	public final MessageCreateListener listenerC;
+	public final MessageEditListener listenerE;
+
+	public SwearFilter(final Indexer indexer) {
 		enabledChannels = new HashSet<>();
 		badWords = new HashSet<>();
-
+		listenerC = event -> {
+			checkMessage(event.getMessage());
+		};
+		
+		listenerE = event -> {
+			if (event.getMessage().isPresent())
+				checkMessage(event.getMessage().get());
+		};
+		
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream("badwords.txt"), StandardCharsets.UTF_8))) {
 			String word;
 			while ((word = reader.readLine()) != null) {
-				word = normalizeWord(word.trim());
+				word = SwearFilter.normalizeWord(word.trim());
 				if (!word.isEmpty())
 					badWords.add(word);
 			}
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			enabled = false;
 			System.err.println("SwearFilter disabled. File 'badwords.txt' not found");
 			return;
@@ -86,9 +95,9 @@ public class SwearFilter {
 			try (BufferedReader readerChannels = new BufferedReader(
 					new InputStreamReader(new FileInputStream("channels.lst"), StandardCharsets.UTF_8))) {
 				String word;
-				while ((word = readerChannels.readLine()) != null)
-					enabledChannels.add(Long.parseLong(word));
-			} catch (Exception ex) {
+				while ((word = readerChannels.readLine()) != null) 
+					indexer.client.getChannelById(Long.parseLong(word)).ifPresent(t -> t.asTextChannel().ifPresent(this::enableFor));
+					} catch (final Exception ex) {
 				enabled = false;
 				System.err.println("SwearFilter disabled. File 'channels.lst' not found");
 				return;
@@ -98,56 +107,43 @@ public class SwearFilter {
 			try (PrintWriter readerChannels = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream("channels.lst"), StandardCharsets.UTF_8))) {
 				enabledChannels.forEach(readerChannels::println);
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				System.err.println(ex.toString());
 			}
 		}, "Saving channels thread"));
-		
-		indexer.client.addMessageCreateListener(event -> {
-			if (isActive(event.getChannel()) && canCheck(event.getMessage().getUserAuthor(), event.getMessage().getServer()))
-				checkMessage(event.getMessage());
-		});
-		indexer.client.addMessageEditListener(event -> {
-			if (isActive(event.getChannel()) && event.getMessage().isPresent())
-				if (canCheck(event.getMessage().get().getUserAuthor(), event.getMessage().get().getServer()))
-					checkMessage(event.getMessage().get());
-		});
 	}
 
-	private boolean canCheck(Optional<User> userAuthor, Optional<Server> srv) {
-		if (userAuthor.isPresent() && srv.isPresent()) {
-			User u = userAuthor.get();
-			if (srv.get().hasPermission(u, PermissionType.MANAGE_CHANNELS)) return false;
-		}
-		return true;
-	}
-
-	private void checkMessage(Message message) {
-		if (message.getAuthor().isYourself()) return;
+	private void checkMessage(final Message message) {
+		if (message.getAuthor().isYourself())
+			return;
 		if (hasSwear(message.getContent()))
-			message.delete()/*.complete(null)*/;
+			message.delete();
 	}
-	
-	public void disableFor(Channel channel) {
+
+	public void disableFor(final TextChannel channel) {
 		if (!enabled || !isActive(channel))
 			return;
+		channel.removeListener(MessageCreateListener.class, listenerC);
+		channel.removeListener(MessageEditListener.class, listenerE);
 		enabledChannels.remove(channel.getId());
 	}
 
-	public void enableFor(Channel channel) {
+	public void enableFor(final TextChannel channel) {
 		if (!enabled || isActive(channel))
 			return;
+		channel.addMessageCreateListener(listenerC);
+		channel.addMessageEditListener(listenerE);
 		enabledChannels.add(channel.getId());
 	}
 
-	private boolean hasSwear(String message) {
-		for (String word : message.split(" "))
-			if (badWords.contains(normalizeWord(word)))
+	private boolean hasSwear(final String message) {
+		for (final String word : message.split(" "))
+			if (badWords.contains(SwearFilter.normalizeWord(word)))
 				return true;
 		return false;
 	}
 
-	public boolean isActive(Channel channel) {
+	public boolean isActive(final TextChannel channel) {
 		return enabledChannels.contains(channel.getId());
 	}
 

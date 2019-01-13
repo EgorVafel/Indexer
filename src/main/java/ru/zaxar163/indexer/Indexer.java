@@ -14,25 +14,20 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 import ru.zaxar163.indexer.command.CommandManager;
+import ru.zaxar163.indexer.command.manage.ExecChannelCommand;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
 import ru.zaxar163.indexer.command.standard.HelpCommand;
 import ru.zaxar163.indexer.command.standard.JokeCommand;
 import ru.zaxar163.indexer.module.SwearFilter;
 
 public class Indexer {
-	private static Indexer instance = null;
 
-	public static Indexer instance() {
-		return instance;
-	}
-
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		new Indexer();
-		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
-		while (true) {
+		final BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+		while (true)
 			if (r.readLine().contains("stop"))
 				System.exit(0);
-		}
 	}
 
 	public final Gson gson = new Gson();
@@ -40,11 +35,11 @@ public class Indexer {
 
 	public final DiscordApi client;
 	public final CommandManager commandManager;
-
+	public final RoleManager roler;
 	public final SwearFilter swearFilter;
 
 	private Indexer() throws Exception {
-		instance = this;
+		// instance = this;
 		config = readConfig();
 
 		client = new DiscordApiBuilder().setToken(config.token).login().join();
@@ -52,21 +47,18 @@ public class Indexer {
 		commandManager = new CommandManager(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new JokeCommand());
-		commandManager.registerCommand(new SwearFilterCommand());
+		commandManager.registerCommand(new SwearFilterCommand(this));
+		commandManager.registerCommand(new ExecChannelCommand(this));
 		swearFilter = new SwearFilter(this);
-
-		client.addMessageCreateListener(ev -> {
-			if (ev.getMessage().getContent().startsWith(config.messageToken))
-				commandManager.process(ev.getMessage());
-		});
+		roler = new RoleManager(client);
 	}
 
 	private Config readConfig() throws IOException {
-		File confFile = new File("config.json");
+		final File confFile = new File("config.json");
 		Config config = null;
 		if (!confFile.exists()) {
 			config = new Config();
-			JsonWriter writer = new JsonWriter(new FileWriter(confFile));
+			final JsonWriter writer = new JsonWriter(new FileWriter(confFile));
 			writer.setIndent("  ");
 			writer.setHtmlSafe(false);
 			gson.toJson(config, Config.class, writer);
