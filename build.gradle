@@ -35,11 +35,12 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-	bundle 'com.github.austinv11:Discord4j:2.10.1'
+	bundle 'com.discord4j:Discord4j:+'
 	bundle 'com.google.code.gson:gson:2.8.5'
 	bundle 'org.apache.commons:commons-csv:1.6'
 	bundle 'commons-io:commons-io:2.6'
 	bundle 'mysql:mysql-connector-java:8.0.13'
+	bundle 'org.slf4j:slf4j-jdk14:1.7.25'
 }
 
 task dumpLibs(type: Copy) {
@@ -48,3 +49,4 @@ task dumpLibs(type: Copy) {
 }
 
 build.dependsOn tasks.dumpLibs
+defaultTasks 'build'

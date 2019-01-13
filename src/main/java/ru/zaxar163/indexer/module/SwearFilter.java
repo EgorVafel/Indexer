@@ -16,11 +16,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import ru.zaxar163.indexer.Indexer;
-import ru.zaxar163.indexer.RequestWorker;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent;
@@ -113,16 +111,16 @@ public class SwearFilter {
 		if (hasSwear(message.getContent()))
 			try {
 				message.delete();
-				/*IMessage rs = message.getChannel()
-						.sendMessage("**" + message.getAuthor().getDisplayName(message.getGuild())
-								+ "**, пожалуйста, следите за словами.");
-				RequestWorker.schedule(rs::delete, 5, TimeUnit.SECONDS);*/
+					/*IMessage rs = message.getChannel()
+							.sendMessage("**" + message.getAuthor().getDisplayName(message.getGuild())
+									+ "**, пожалуйста, следите за словами.");
+					RequestWorker.schedule(rs::delete, 5, TimeUnit.SECONDS);*/
 				indexer.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + message.getAuthor().mention()
 								+ "**, пожалуйста, следите за словами.");
 			} catch (Exception ignored) {
 			}
 	}
-
+	
 	public void disableFor(IChannel channel) {
 		if (!enabled || !isActive(channel))
 			return;
@@ -151,7 +149,7 @@ public class SwearFilter {
 	}
 
 	public boolean isFilterable(MessageEvent event) {
-		return isActive(event.getChannel()) && !event.getAuthor().equals(event.getGuild().getOwner())
+		return isActive(event.getChannel()) && event.getAuthor().hasRole(indexer.commandManager.developer)
 				&& !event.getAuthor().equals(indexer.client.getOurUser());
 	}
 

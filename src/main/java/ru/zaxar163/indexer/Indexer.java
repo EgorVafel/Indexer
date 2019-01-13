@@ -55,7 +55,6 @@ public class Indexer {
 	private Indexer() throws Exception {
 		instance = this;
 		readConfig();
-		RequestWorker.init(2);
 
 		client = new ClientBuilder().withToken(config.token).build();
 		mysql = new MysqlPool(this);
