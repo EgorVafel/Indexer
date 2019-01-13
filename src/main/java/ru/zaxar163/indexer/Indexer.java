@@ -44,13 +44,13 @@ public class Indexer {
 
 		client = new DiscordApiBuilder().setToken(config.token).login().join();
 
+		roler = new RoleManager(client);
 		commandManager = new CommandManager(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new JokeCommand());
 		commandManager.registerCommand(new SwearFilterCommand(this));
 		commandManager.registerCommand(new ExecChannelCommand(this));
 		swearFilter = new SwearFilter(this);
-		roler = new RoleManager(client);
 	}
 
 	private Config readConfig() throws IOException {
