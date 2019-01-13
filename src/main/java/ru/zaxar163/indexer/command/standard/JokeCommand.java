@@ -2,8 +2,9 @@ package ru.zaxar163.indexer.command.standard;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.javacord.api.entity.message.Message;
+
 import ru.zaxar163.indexer.command.Command;
-import sx.blah.discord.handle.obj.IMessage;
 
 /**
  * @author xtrafrancyz
@@ -59,7 +60,7 @@ public class JokeCommand extends Command {
 	}
 
 	@Override
-	public void onCommand(IMessage message, String[] args) throws Exception {
+	public void onCommand(Message message, String[] args) throws Exception {
 		message.getChannel()
 				.sendMessage(JokeCommand.JOKES[ThreadLocalRandom.current().nextInt(JokeCommand.JOKES.length)]);
 	}

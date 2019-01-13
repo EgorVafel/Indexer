@@ -3,7 +3,7 @@ package ru.zaxar163.indexer.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import sx.blah.discord.handle.obj.IMessage;
+import org.javacord.api.entity.message.Message;
 
 public abstract class Command {
 	public final String command;
@@ -19,10 +19,11 @@ public abstract class Command {
 		this.help = help;
 	}
 
-	public boolean canUse(IMessage message) {
-		String name = message.getChannel().getName().toLowerCase();
+	public boolean canUse(Message message) {
+		if (!message.getChannel().asServerChannel().isPresent()) return false;
+		String name = message.getChannel().asServerChannel().get().getName().toLowerCase();
 		return name.contains("offtop") || name.contains("fft") || name.contains("bot");
 	}
 
-	public abstract void onCommand(IMessage message, String[] args) throws Exception;
+	public abstract void onCommand(Message message, String[] args) throws Exception;
 }

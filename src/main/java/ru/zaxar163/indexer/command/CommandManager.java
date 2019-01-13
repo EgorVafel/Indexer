@@ -4,15 +4,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.permission.Role;
+
 import ru.zaxar163.indexer.Indexer;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 
 public class CommandManager {
 	public final Indexer app;
 	public Map<String, Command> registered;
 	public Map<String, Command> alises;
-	public IRole developer = null;
+	public Role developer = null;
 
 	public CommandManager(Indexer app) {
 		this.app = app;
@@ -27,10 +28,11 @@ public class CommandManager {
 		return alises.get(cmd);
 	}
 
-	public void process(IMessage message) {
+	public void process(Message message) {
 		try {
+			if (!message.getChannel().asServerTextChannel().isPresent()) return;
 			if (developer == null)
-				developer = message.getGuild().getRoles().stream().filter(e -> e.getName().equals("Developer"))
+				developer = message.getChannel().asServerTextChannel().get().getServer().getRoles().stream().filter(e -> e.getName().equals("Developer"))
 						.findFirst().get();
 			String text = message.getContent().substring(1);
 			String[] args = text.split(" ");

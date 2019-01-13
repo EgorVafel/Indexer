@@ -2,9 +2,10 @@ package ru.zaxar163.indexer.command.standard;
 
 import java.util.Map;
 
+import org.javacord.api.entity.message.Message;
+
 import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.command.CommandManager;
-import sx.blah.discord.handle.obj.IMessage;
 
 public class HelpCommand extends Command {
 	private final CommandManager commands;
@@ -15,11 +16,11 @@ public class HelpCommand extends Command {
 	}
 
 	@Override
-	public void onCommand(IMessage message, String[] args) throws Exception {
+	public void onCommand(Message message, String[] args) throws Exception {
 		if (args.length != 0) {
 			Command command = commands.getCommand(args[0]);
 			if (command == null) {
-				message.getAuthor().getOrCreatePMChannel().sendMessage("Нет такой команды.");
+				message.getChannel().sendMessage("Нет такой команды.");
 				return;
 			}
 			String msg;
@@ -27,7 +28,7 @@ public class HelpCommand extends Command {
 				msg = command.help;
 			else
 				msg = "У команды !" + command.command + " нет описания :frowning2:";
-			message.getAuthor().getOrCreatePMChannel().sendMessage(msg);
+			message.getChannel().sendMessage(msg);
 			return;
 		}
 		String msg = "Доступные для вас команды: ```";
@@ -43,6 +44,6 @@ public class HelpCommand extends Command {
 		}
 		msg += "```";
 		msg += "Напишите `!help <команда>` чтобы посмотреть описание команды";
-		message.getAuthor().getOrCreatePMChannel().sendMessage(msg);
+		message.getChannel().sendMessage(msg);
 	}
 }

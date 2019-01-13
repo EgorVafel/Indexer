@@ -15,17 +15,17 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.javacord.api.entity.channel.Channel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
+
 import ru.zaxar163.indexer.Indexer;
-import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageUpdateEvent;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
 
 public class SwearFilter {
 	private static final OpenOption[] WRITE_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.WRITE,
@@ -58,7 +58,6 @@ public class SwearFilter {
 				.replace('s', 'с');
 	}
 
-	private final Indexer indexer;
 	private final Set<Long> enabledChannels;
 
 	private final Set<String> badWords;
@@ -66,7 +65,6 @@ public class SwearFilter {
 	private boolean enabled = true;
 
 	public SwearFilter(Indexer indexer) {
-		this.indexer = indexer;
 		enabledChannels = new HashSet<>();
 		badWords = new HashSet<>();
 
@@ -80,7 +78,7 @@ public class SwearFilter {
 			}
 		} catch (Exception ex) {
 			enabled = false;
-			Discord4J.LOGGER.info("SwearFilter disabled. File 'badwords.txt' not found");
+			System.err.println("SwearFilter disabled. File 'badwords.txt' not found");
 			return;
 		}
 
@@ -92,45 +90,54 @@ public class SwearFilter {
 					enabledChannels.add(Long.parseLong(word));
 			} catch (Exception ex) {
 				enabled = false;
-				Discord4J.LOGGER.info("SwearFilter disabled. File 'channels.lst' not found");
+				System.err.println("SwearFilter disabled. File 'channels.lst' not found");
 				return;
 			}
 
-		indexer.client.getDispatcher().registerListeners(this);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try (PrintWriter readerChannels = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream("channels.lst"), StandardCharsets.UTF_8))) {
 				enabledChannels.forEach(readerChannels::println);
 			} catch (Exception ex) {
-				Discord4J.LOGGER.error(ex.toString());
+				System.err.println(ex.toString());
 			}
 		}, "Saving channels thread"));
+		
+		indexer.client.addMessageCreateListener(event -> {
+			if (isActive(event.getChannel()) && canCheck(event.getMessage().getUserAuthor(), event.getMessage().getServer()))
+				checkMessage(event.getMessage());
+		});
+		indexer.client.addMessageEditListener(event -> {
+			if (isActive(event.getChannel()) && event.getMessage().isPresent())
+				if (canCheck(event.getMessage().get().getUserAuthor(), event.getMessage().get().getServer()))
+					checkMessage(event.getMessage().get());
+		});
 	}
 
-	private void checkMessage(IMessage message) {
+	private boolean canCheck(Optional<User> userAuthor, Optional<Server> srv) {
+		if (userAuthor.isPresent() && srv.isPresent()) {
+			User u = userAuthor.get();
+			if (srv.get().hasPermission(u, PermissionType.MANAGE_CHANNELS)) return false;
+		}
+		return true;
+	}
+
+	private void checkMessage(Message message) {
+		if (message.getAuthor().isYourself()) return;
 		if (hasSwear(message.getContent()))
-			try {
-				message.delete();
-					/*IMessage rs = message.getChannel()
-							.sendMessage("**" + message.getAuthor().getDisplayName(message.getGuild())
-									+ "**, пожалуйста, следите за словами.");
-					RequestWorker.schedule(rs::delete, 5, TimeUnit.SECONDS);*/
-				indexer.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + message.getAuthor().mention()
-								+ "**, пожалуйста, следите за словами.");
-			} catch (Exception ignored) {
-			}
+			message.delete()/*.complete(null)*/;
 	}
 	
-	public void disableFor(IChannel channel) {
+	public void disableFor(Channel channel) {
 		if (!enabled || !isActive(channel))
 			return;
-		enabledChannels.remove(channel.getLongID());
+		enabledChannels.remove(channel.getId());
 	}
 
-	public void enableFor(IChannel channel) {
+	public void enableFor(Channel channel) {
 		if (!enabled || isActive(channel))
 			return;
-		enabledChannels.add(channel.getLongID());
+		enabledChannels.add(channel.getId());
 	}
 
 	private boolean hasSwear(String message) {
@@ -140,28 +147,11 @@ public class SwearFilter {
 		return false;
 	}
 
-	public boolean isActive(IChannel channel) {
-		return enabledChannels.contains(channel.getLongID());
+	public boolean isActive(Channel channel) {
+		return enabledChannels.contains(channel.getId());
 	}
 
 	public boolean isEnabled() {
 		return enabled;
-	}
-
-	public boolean isFilterable(MessageEvent event) {
-		return isActive(event.getChannel()) && event.getAuthor().hasRole(indexer.commandManager.developer)
-				&& !event.getAuthor().equals(indexer.client.getOurUser());
-	}
-
-	@EventSubscriber
-	public void onMessage(MessageReceivedEvent event) {
-		if (isFilterable(event))
-			checkMessage(event.getMessage());
-	}
-
-	@EventSubscriber
-	public void onMessageEdit(MessageUpdateEvent event) {
-		if (isFilterable(event))
-			checkMessage(event.getNewMessage());
 	}
 }

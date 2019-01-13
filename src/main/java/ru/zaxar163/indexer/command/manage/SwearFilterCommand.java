@@ -1,9 +1,10 @@
 package ru.zaxar163.indexer.command.manage;
 
+import org.javacord.api.entity.message.Message;
+
 import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.module.SwearFilter;
-import sx.blah.discord.handle.obj.IMessage;
 
 /**
  * @author xtrafrancyz
@@ -14,12 +15,13 @@ public class SwearFilterCommand extends Command {
 	}
 
 	@Override
-	public boolean canUse(IMessage message) {
-		return message.getAuthor().hasRole(Indexer.instance().commandManager.developer);
+	public boolean canUse(Message message) {
+		if (message.getUserAuthor().isPresent()) return message.getChannel().asServerTextChannel().get().getServer().getRoles(message.getUserAuthor().get()).contains(Indexer.instance().commandManager.developer)	;
+		return false;
 	}
 
 	@Override
-	public void onCommand(IMessage message, String[] args) throws Exception {
+	public void onCommand(Message message, String[] args) throws Exception {
 		SwearFilter swearFilter = Indexer.instance().swearFilter;
 		if (!swearFilter.isEnabled()) {
 			message.getChannel().sendMessage("Фильтр мата не настроен.");

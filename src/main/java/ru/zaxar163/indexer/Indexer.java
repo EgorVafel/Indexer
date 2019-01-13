@@ -7,25 +7,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 import ru.zaxar163.indexer.command.CommandManager;
-import ru.zaxar163.indexer.command.manage.MassBanCommand;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
 import ru.zaxar163.indexer.command.standard.HelpCommand;
 import ru.zaxar163.indexer.command.standard.JokeCommand;
 import ru.zaxar163.indexer.module.SwearFilter;
-import ru.zaxar163.indexer.mysql.MysqlPool;
-import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.ActivityType;
-import sx.blah.discord.handle.obj.StatusType;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.RateLimitException;
 
 public class Indexer {
 	private static Indexer instance = null;
@@ -44,45 +36,34 @@ public class Indexer {
 	}
 
 	public final Gson gson = new Gson();
-	public Config config;
+	public final Config config;
 
-	public final IDiscordClient client;
-	public final MysqlPool mysql;
+	public final DiscordApi client;
 	public final CommandManager commandManager;
 
 	public final SwearFilter swearFilter;
 
 	private Indexer() throws Exception {
 		instance = this;
-		readConfig();
+		config = readConfig();
 
-		client = new ClientBuilder().withToken(config.token).build();
-		mysql = new MysqlPool(this);
+		client = new DiscordApiBuilder().setToken(config.token).login().join();
 
 		commandManager = new CommandManager(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new JokeCommand());
 		commandManager.registerCommand(new SwearFilterCommand());
-		commandManager.registerCommand(new MassBanCommand());
 		swearFilter = new SwearFilter(this);
 
-		client.login();
-		client.getDispatcher().registerListener(this);
+		client.addMessageCreateListener(ev -> {
+			if (ev.getMessage().getContent().startsWith(config.messageToken))
+				commandManager.process(ev.getMessage());
+		});
 	}
 
-	@EventSubscriber
-	public void onMessage(MessageReceivedEvent event) {
-		if (event.getMessage().getContent().startsWith("!"))
-			commandManager.process(event.getMessage());
-	}
-
-	@EventSubscriber
-	public void onReady(ReadyEvent event) throws RateLimitException, DiscordException {
-		client.changePresence(StatusType.ONLINE, ActivityType.WATCHING, "сервера mc | !help");
-	}
-
-	private void readConfig() throws IOException {
+	private Config readConfig() throws IOException {
 		File confFile = new File("config.json");
+		Config config = null;
 		if (!confFile.exists()) {
 			config = new Config();
 			JsonWriter writer = new JsonWriter(new FileWriter(confFile));
@@ -97,5 +78,6 @@ public class Indexer {
 					Files.readAllLines(confFile.toPath()).stream().map(String::trim)
 							.filter(s -> !s.startsWith("#") && !s.isEmpty()).reduce((a, b) -> a += b).orElse(""),
 					Config.class);
+		return config;
 	}
 }
