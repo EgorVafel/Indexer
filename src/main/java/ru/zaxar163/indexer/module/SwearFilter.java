@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.listener.message.MessageCreateListener;
-import org.javacord.api.listener.message.MessageEditListener;
 
 import ru.zaxar163.indexer.Indexer;
 
@@ -62,20 +60,17 @@ public class SwearFilter {
 
 	private boolean enabled = true;
 
-	public final MessageCreateListener listenerC;
-	public final MessageEditListener listenerE;
-
 	public SwearFilter(final Indexer indexer) {
 		enabledChannels = new HashSet<>();
 		badWords = new HashSet<>();
-		listenerC = event -> {
-			checkMessage(event.getMessage());
-		};
+		indexer.client.addMessageCreateListener(event -> {
+			if (enabledChannels.contains(Long.valueOf(event.getChannel().getId()))) checkMessage(event.getMessage());
+		});
 		
-		listenerE = event -> {
-			if (event.getMessage().isPresent())
+		indexer.client.addMessageEditListener(event -> {
+			if (enabledChannels.contains(Long.valueOf(event.getChannel().getId())) && event.getMessage().isPresent())
 				checkMessage(event.getMessage().get());
-		};
+		});
 		
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream("badwords.txt"), StandardCharsets.UTF_8))) {
@@ -123,16 +118,12 @@ public class SwearFilter {
 	public void disableFor(final TextChannel channel) {
 		if (!enabled || !isActive(channel))
 			return;
-		channel.removeListener(MessageCreateListener.class, listenerC);
-		channel.removeListener(MessageEditListener.class, listenerE);
 		enabledChannels.remove(channel.getId());
 	}
 
 	public void enableFor(final TextChannel channel) {
 		if (!enabled || isActive(channel))
 			return;
-		channel.addMessageCreateListener(listenerC);
-		channel.addMessageEditListener(listenerE);
 		enabledChannels.add(channel.getId());
 	}
 

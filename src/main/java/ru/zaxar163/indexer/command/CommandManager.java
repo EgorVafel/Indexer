@@ -16,8 +16,6 @@ import java.util.Map;
 
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.listener.message.MessageCreateListener;
 
 import ru.zaxar163.indexer.Indexer;
 
@@ -26,8 +24,6 @@ public class CommandManager {
 	public final Indexer app;
 	public Map<String, Command> registered;
 	public Map<String, Command> alises;
-	public Role developer = null;
-	public final MessageCreateListener listener;
 
 	public final List<Long> enabledChannels;
 
@@ -36,10 +32,10 @@ public class CommandManager {
 		registered = new HashMap<>();
 		alises = new HashMap<>();
 		enabledChannels = new ArrayList<>();
-		listener = ev -> {
-			if (ev.getMessage().getContent().startsWith(this.app.config.messageToken))
+		app.client.addMessageCreateListener(ev -> {
+			if (enabledChannels.contains(Long.valueOf(ev.getChannel().getId())) && ev.getMessage().getContent().startsWith(this.app.config.messageToken))
 				process(ev.getMessage());
-		};
+		});
 		if (new File("channels_cmd.lst").exists())
 			try (BufferedReader readerChannels = new BufferedReader(
 					new InputStreamReader(new FileInputStream("channels_cmd.lst"), StandardCharsets.UTF_8))) {
@@ -65,7 +61,7 @@ public class CommandManager {
 	}
 
 	public void attachChannelListener(final ServerTextChannel ch) {
-		ch.addMessageCreateListener(listener);
+		
 		enabledChannels.add(ch.getId());
 		ch.sendMessage("Исполнение команд для этого канала теперь **включено**");
 	}
@@ -99,7 +95,6 @@ public class CommandManager {
 	}
 
 	public void removeChannelListener(final ServerTextChannel ch) {
-		ch.removeListener(MessageCreateListener.class, listener);
 		enabledChannels.removeIf(e -> e.longValue() == ch.getId());
 		ch.sendMessage("Исполнение команд для этого канала теперь **отключено**");
 	}
