@@ -8,6 +8,7 @@ targetCompatibility = '1.8'
 repositories {
 	mavenCentral()
 	maven { url 'https://jitpack.io' }
+	maven { url 'https://repo.eclipse.org/content/groups/releases' }
 	jcenter()
 }
 
@@ -37,10 +38,8 @@ tasks.withType(JavaCompile) {
 dependencies {
 	bundle 'org.javacord:javacord:3.0.1'
 	bundle 'com.google.code.gson:gson:2.8.5'
-	bundle 'org.apache.commons:commons-csv:1.6'
-	bundle 'commons-io:commons-io:2.6'
-	bundle 'mysql:mysql-connector-java:8.0.13'
 	bundle 'org.apache.logging.log4j:log4j-core:2.11.0'
+	bundle 'org.eclipse.mylyn.github:org.eclipse.egit.github.core:5.2.0.201812061821-r'
 }
 
 task dumpLibs(type: Copy) {

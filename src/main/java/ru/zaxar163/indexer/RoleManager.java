@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -34,6 +35,8 @@ public class RoleManager {
 
 	public Role fft;
 
+	public ServerTextChannel github;
+
 	private final DiscordApi client;
 
 	public RoleManager(final DiscordApi client) {
@@ -58,5 +61,6 @@ public class RoleManager {
 		betaTester = roles.stream().filter(e -> e.getName().contains("Бета-тестер")).findFirst().get();
 		active = roles.stream().filter(e -> e.getName().contains("Активный участник")).findFirst().get();
 		fft = roles.stream().filter(e -> "FFTeam".equals(e.getName())).findFirst().get();
+		github = gravitLauncher.getChannelsByName("github").stream().findFirst().get().asServerTextChannel().get();
 	}
 }
