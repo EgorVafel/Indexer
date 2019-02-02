@@ -3,6 +3,7 @@ package ru.zaxar163.indexer.command.manage;
 import org.javacord.api.entity.message.Message;
 
 import ru.zaxar163.indexer.Indexer;
+import ru.zaxar163.indexer.RoleManager;
 import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.command.CommandManager;
 
@@ -21,7 +22,7 @@ public class ExecChannelCommand extends Command {
 			throw new IllegalArgumentException("Illegal args");
 		message.getChannel().asServerTextChannel().get().getServer().getChannels().stream()
 				.filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
-				.filter(e -> e.getName().toLowerCase().contains(args[0])).forEach(indexer.commandManager::work);
+				.filter(RoleManager.channelMatches(args[0])).forEach(indexer.commandManager::work);
 		message.delete();
 	}
 

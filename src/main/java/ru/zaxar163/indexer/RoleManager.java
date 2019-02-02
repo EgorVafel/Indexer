@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -62,5 +63,9 @@ public class RoleManager {
 		active = roles.stream().filter(e -> e.getName().contains("Активный участник")).findFirst().get();
 		fft = roles.stream().filter(e -> "FFTeam".equals(e.getName())).findFirst().get();
 		github = gravitLauncher.getChannelsByName("github").stream().findFirst().get().asServerTextChannel().get();
+	}
+
+	public static Predicate<? super ServerTextChannel> channelMatches(String string) {
+		return e -> e.getName().equals(string);
 	}
 }
