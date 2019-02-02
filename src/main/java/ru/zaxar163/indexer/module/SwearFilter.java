@@ -64,14 +64,15 @@ public class SwearFilter {
 		enabledChannels = new HashSet<>();
 		badWords = new HashSet<>();
 		indexer.client.addMessageCreateListener(event -> {
-			if (enabledChannels.contains(Long.valueOf(event.getChannel().getId()))) checkMessage(event.getMessage());
+			if (enabledChannels.contains(Long.valueOf(event.getChannel().getId())))
+				checkMessage(event.getMessage());
 		});
-		
+
 		indexer.client.addMessageEditListener(event -> {
 			if (enabledChannels.contains(Long.valueOf(event.getChannel().getId())) && event.getMessage().isPresent())
 				checkMessage(event.getMessage().get());
 		});
-		
+
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new FileInputStream("badwords.txt"), StandardCharsets.UTF_8))) {
 			String word;
@@ -90,9 +91,10 @@ public class SwearFilter {
 			try (BufferedReader readerChannels = new BufferedReader(
 					new InputStreamReader(new FileInputStream("channels.lst"), StandardCharsets.UTF_8))) {
 				String word;
-				while ((word = readerChannels.readLine()) != null) 
-					indexer.client.getChannelById(Long.parseLong(word)).ifPresent(t -> t.asTextChannel().ifPresent(this::enableFor));
-					} catch (final Exception ex) {
+				while ((word = readerChannels.readLine()) != null)
+					indexer.client.getChannelById(Long.parseLong(word))
+							.ifPresent(t -> t.asTextChannel().ifPresent(this::enableFor));
+			} catch (final Exception ex) {
 				enabled = false;
 				System.err.println("SwearFilter disabled. File 'channels.lst' not found");
 				return;

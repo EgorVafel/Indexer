@@ -15,7 +15,7 @@ public class HelpCommand extends Command {
 	public HelpCommand(final CommandManager commands) {
 		super("help", "`!help` - список команд\n" + "`!help <команда>` - информация о команде");
 		this.commands = commands;
-		this.privateWorker = commands.app.privateWorker;
+		privateWorker = commands.app.privateWorker;
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class HelpCommand extends Command {
 				msg = command.help;
 			else
 				msg = "У команды !" + command.command + " нет описания :frowning2:";
-			message.getChannel().sendMessage(msg);
+			privateWorker.sendMessage(message.getUserAuthor().get(), msg);
 			return;
 		}
 		String msg = "Доступные для вас команды: ```";
