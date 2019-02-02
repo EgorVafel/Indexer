@@ -14,10 +14,11 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 import ru.zaxar163.indexer.command.CommandManager;
+import ru.zaxar163.indexer.command.basic.SrvOwnersManageCmd;
 import ru.zaxar163.indexer.command.manage.ExecChannelCommand;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
 import ru.zaxar163.indexer.command.standard.HelpCommand;
-import ru.zaxar163.indexer.command.standard.JokeCommand;
+import ru.zaxar163.indexer.module.PrivateWorker;
 import ru.zaxar163.indexer.module.SwearFilter;
 
 public class Indexer {
@@ -37,20 +38,20 @@ public class Indexer {
 	public final CommandManager commandManager;
 	public final RoleManager roler;
 	public final SwearFilter swearFilter;
+	public final PrivateWorker privateWorker;
 
 	private Indexer() throws Exception {
-		// instance = this;
 		config = readConfig();
 
 		client = new DiscordApiBuilder().setToken(config.token).login().join();
-
 		roler = new RoleManager(client);
 		commandManager = new CommandManager(this);
+		privateWorker = new PrivateWorker();
+		swearFilter = new SwearFilter(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
-		commandManager.registerCommand(new JokeCommand());
+		commandManager.registerCommand(new SrvOwnersManageCmd(this));
 		commandManager.registerCommand(new SwearFilterCommand(this));
 		commandManager.registerCommand(new ExecChannelCommand(this));
-		swearFilter = new SwearFilter(this);
 	}
 
 	private Config readConfig() throws IOException {

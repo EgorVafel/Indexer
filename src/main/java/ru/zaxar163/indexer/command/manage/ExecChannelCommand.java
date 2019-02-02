@@ -11,7 +11,7 @@ public class ExecChannelCommand extends Command {
 	private final Indexer indexer;
 
 	public ExecChannelCommand(final Indexer indexer) {
-		super("swearfilter", "`!execable` - включает/выключает исполнение команд в канале");
+		super("execable", "`!execable` - включает/выключает исполнение команд в канале");
 		this.indexer = indexer;
 	}
 

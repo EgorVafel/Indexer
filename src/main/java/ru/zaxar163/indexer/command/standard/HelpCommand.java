@@ -6,13 +6,16 @@ import org.javacord.api.entity.message.Message;
 
 import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.command.CommandManager;
+import ru.zaxar163.indexer.module.PrivateWorker;
 
 public class HelpCommand extends Command {
 	private final CommandManager commands;
+	private final PrivateWorker privateWorker;
 
 	public HelpCommand(final CommandManager commands) {
 		super("help", "`!help` - список команд\n" + "`!help <команда>` - информация о команде");
 		this.commands = commands;
+		this.privateWorker = commands.app.privateWorker;
 	}
 
 	@Override
@@ -43,7 +46,8 @@ public class HelpCommand extends Command {
 			msg += entry.getKey();
 		}
 		msg += "```";
-		msg += "Напишите `!help <команда>` чтобы посмотреть описание команды";
-		message.getChannel().sendMessage(msg);
+		msg += "Напишите `!help <команда>` на сервере GravitLauncher чтобы посмотреть описание команды";
+		privateWorker.sendMessage(message.getUserAuthor().get(), msg);
+		message.delete();
 	}
 }

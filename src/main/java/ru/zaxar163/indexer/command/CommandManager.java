@@ -33,7 +33,7 @@ public class CommandManager {
 		alises = new HashMap<>();
 		enabledChannels = new ArrayList<>();
 		app.client.addMessageCreateListener(ev -> {
-			if (enabledChannels.contains(Long.valueOf(ev.getChannel().getId())) && ev.getMessage().getContent().startsWith(this.app.config.messageToken))
+			if (enabledChannels.contains(Long.valueOf(ev.getChannel().getId())) && ev.getMessage().getUserAuthor().isPresent() && ev.getMessage().getContent().startsWith(this.app.config.messageToken))
 				process(ev.getMessage());
 		});
 		if (new File("channels_cmd.lst").exists())
@@ -61,7 +61,6 @@ public class CommandManager {
 	}
 
 	public void attachChannelListener(final ServerTextChannel ch) {
-		
 		enabledChannels.add(ch.getId());
 		ch.sendMessage("Исполнение команд для этого канала теперь **включено**");
 	}
