@@ -47,7 +47,7 @@ public class HelpCommand extends Command {
 		}
 		msg += "```";
 		msg += "Напишите `!help <команда>` на сервере GravitLauncher чтобы посмотреть описание команды";
-		privateWorker.sendMessage(message.getUserAuthor().get(), msg);
 		message.delete();
+		privateWorker.sendMessage(message.getUserAuthor().get(), msg);
 	}
 }

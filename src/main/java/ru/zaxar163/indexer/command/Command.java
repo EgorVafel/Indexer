@@ -22,8 +22,7 @@ public abstract class Command {
 	public boolean canUse(final Message message) {
 		if (!message.getChannel().asServerChannel().isPresent())
 			return false;
-		final String name = message.getChannel().asServerChannel().get().getName().toLowerCase();
-		return name.contains("offtop") || name.contains("fft") || name.contains("bot");
+		return true;
 	}
 
 	public abstract void onCommand(Message message, String[] args) throws Exception;

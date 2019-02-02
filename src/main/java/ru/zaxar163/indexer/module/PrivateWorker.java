@@ -10,10 +10,8 @@ public class PrivateWorker {
 	public final PrivateChannel getOrCreateForUser(User u) {
 		if (u.getPrivateChannel().isPresent()) return u.getPrivateChannel().get();
 		try {
-			return u.openPrivateChannel().get();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+			return u.openPrivateChannel().join();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;

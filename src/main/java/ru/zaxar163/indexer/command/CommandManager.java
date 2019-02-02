@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -34,7 +35,9 @@ public class CommandManager {
 		enabledChannels = new ArrayList<>();
 		app.client.addMessageCreateListener(ev -> {
 			if (enabledChannels.contains(Long.valueOf(ev.getChannel().getId())) && ev.getMessage().getUserAuthor().isPresent() && ev.getMessage().getContent().startsWith(this.app.config.messageToken))
+			{
 				process(ev.getMessage());
+			}
 		});
 		if (new File("channels_cmd.lst").exists())
 			try (BufferedReader readerChannels = new BufferedReader(
@@ -78,7 +81,7 @@ public class CommandManager {
 				return;
 			final String text = message.getContent().substring(1);
 			final String[] args = text.split(" ");
-			final Command command = getCommand(args[0].toLowerCase());
+			final Command command = getCommand(args[0].toLowerCase(Locale.ENGLISH));
 			if (command == null || !command.canUse(message))
 				return;
 			command.onCommand(message, Arrays.copyOfRange(args, 1, args.length));
