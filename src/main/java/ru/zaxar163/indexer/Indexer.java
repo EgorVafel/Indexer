@@ -14,10 +14,11 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 import ru.zaxar163.indexer.command.CommandManager;
+import ru.zaxar163.indexer.command.basic.HelpCommand;
 import ru.zaxar163.indexer.command.basic.SrvOwnersManageCmd;
 import ru.zaxar163.indexer.command.manage.ExecChannelCommand;
+import ru.zaxar163.indexer.command.manage.RemoveMsgCommand;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
-import ru.zaxar163.indexer.command.standard.HelpCommand;
 import ru.zaxar163.indexer.module.PrivateWorker;
 import ru.zaxar163.indexer.module.SwearFilter;
 
@@ -50,6 +51,7 @@ public class Indexer {
 		swearFilter = new SwearFilter(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new SrvOwnersManageCmd(this));
+		commandManager.registerCommand(new RemoveMsgCommand(this));
 		commandManager.registerCommand(new SwearFilterCommand(this));
 		commandManager.registerCommand(new ExecChannelCommand(this));
 	}

@@ -17,6 +17,11 @@ public class ExecChannelCommand extends Command {
 	}
 
 	@Override
+	public boolean canUse(final Message message) {
+		return RoleManager.hasRole(indexer.roler.middleDeveloper, message.getUserAuthor());
+	}
+
+	@Override
 	public void onCommand(final Message message, final String[] args) throws Exception {
 		if (args.length < 1)
 			throw new IllegalArgumentException("Illegal args");

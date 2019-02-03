@@ -13,6 +13,10 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 public class RoleManager {
+	public static Predicate<? super ServerTextChannel> channelMatches(final String string) {
+		return e -> e.getName().equals(string);
+	}
+
 	public static boolean hasRole(final Role r, final Optional<User> auth) {
 		if (!auth.isPresent())
 			return false;
@@ -22,14 +26,14 @@ public class RoleManager {
 	public List<Role> roles;
 
 	public Server gravitLauncher;
-
 	public final Map<Server, List<Role>> rolesMap;
 	public Role maintainer;
 	public Role developer;
-	public Role middleDeveloper;
 
+	public Role middleDeveloper;
 	public Role juniorDeveloper;
 	public Role serverOwner;
+
 	public Role betaTester;
 
 	public Role active;
@@ -63,9 +67,5 @@ public class RoleManager {
 		active = roles.stream().filter(e -> e.getName().contains("Активный участник")).findFirst().get();
 		fft = roles.stream().filter(e -> "FFTeam".equals(e.getName())).findFirst().get();
 		github = gravitLauncher.getChannelsByName("github").stream().findFirst().get().asServerTextChannel().get();
-	}
-
-	public static Predicate<? super ServerTextChannel> channelMatches(String string) {
-		return e -> e.getName().equals(string);
 	}
 }

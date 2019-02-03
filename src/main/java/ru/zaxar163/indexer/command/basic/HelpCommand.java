@@ -1,4 +1,4 @@
-package ru.zaxar163.indexer.command.standard;
+package ru.zaxar163.indexer.command.basic;
 
 import java.util.Map;
 
