@@ -13,7 +13,7 @@ import ru.zaxar163.indexer.command.Command;
 public class RemoveMsgCommand1 extends Command {
 
 	public RemoveMsgCommand1(final Indexer indexer) {
-		super("removemsgcounted", "!removemsgcounted - удаляет сообщения в диапазоне");
+		super("removemsgcounted", "`!removemsgcounted` - удаляет сообщения в диапазоне");
 		super.aliases.add("rmd");
 	}
 

@@ -15,7 +15,7 @@ import ru.zaxar163.indexer.command.Command;
 
 public class RemoveMsgCommand2 extends Command {
 	public RemoveMsgCommand2(final Indexer indexer) {
-		super("removemsgnamed", "!removemsgnamed - удаляет сообщения пользователей/всех принадлежащих к определённой роле, лимит задан параметрами");
+		super("removemsgnamed", "`!removemsgnamed` - удаляет сообщения пользователей/всех принадлежащих к определённой роле, лимит задан параметрами");
 		super.aliases.add("rmn");
 	}
 
