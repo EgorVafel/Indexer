@@ -10,11 +10,15 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 
@@ -22,17 +26,28 @@ import ru.zaxar163.indexer.Indexer;
 
 public class CommandManager {
 	public static final Class<ServerTextChannel> stc = ServerTextChannel.class;
+
+	public static void filterSrvList(final DiscordApi client, final Set<Long> enabledChannels) {
+		final List<Long> applied = new ArrayList<>();
+		client.getServerTextChannels().stream().mapToLong(e -> e.getId()).forEach(e -> {
+			if (enabledChannels.contains(Long.valueOf(e)))
+				applied.add(e);
+		});
+		enabledChannels.removeIf(e -> !applied.contains(e));
+	}
+
 	public final Indexer app;
 	public Map<String, Command> registered;
+
 	public Map<String, Command> alises;
 
-	public final List<Long> enabledChannels;
+	public final Set<Long> enabledChannels;
 
 	public CommandManager(final Indexer app) {
 		this.app = app;
 		registered = new HashMap<>();
 		alises = new HashMap<>();
-		enabledChannels = new ArrayList<>();
+		enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
 		app.client.addMessageCreateListener(ev -> {
 			if (enabledChannels.contains(Long.valueOf(ev.getChannel().getId()))
 					&& ev.getMessage().getUserAuthor().isPresent()
@@ -46,13 +61,20 @@ public class CommandManager {
 				while ((word = readerChannels.readLine()) != null)
 					enabledChannels.add(Long.parseLong(word));
 			} catch (final Exception ex) {
-				System.err.println("File 'channels_cmd.lst' not found");
+				System.err.println("File 'channels_cmd.lst' parsing error");
 				return;
 			}
-		else
-			app.roler.gravitLauncher.getChannels().stream().filter(CommandManager.stc::isInstance)
-					.map(CommandManager.stc::cast).filter(e -> e.getName().toLowerCase().contains("developers"))
+		app.client.getServers().stream().forEach(s -> {
+			if (!s.getChannels().stream().mapToLong(e -> e.getId())
+					.anyMatch(e -> enabledChannels.contains(Long.valueOf(e))))
+				s.getChannels().stream().filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
+						.forEach(this::attachChannelListener);
+		});
+		app.client.addServerJoinListener(e -> {
+			e.getServer().getChannels().stream().filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
 					.forEach(this::attachChannelListener);
+		});
+		filterSrvList(app.client, enabledChannels);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try (PrintWriter readerChannels = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream("channels_cmd.lst"), StandardCharsets.UTF_8))) {

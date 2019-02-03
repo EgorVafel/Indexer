@@ -19,7 +19,8 @@ public class RemoveMsgCommand1 extends Command {
 
 	@Override
 	public boolean canUse(final Message message) {
-		return super.canUse(message) && RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_MESSAGES);
+		return super.canUse(message)
+				&& RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_MESSAGES);
 	}
 
 	@Override
@@ -28,7 +29,8 @@ public class RemoveMsgCommand1 extends Command {
 		if (args.length < 1)
 			throw new IllegalArgumentException("Invalid args.");
 		final int cnt = Integer.parseInt(args[0]);
-		if (cnt < 1) throw new IllegalArgumentException("Invalid args.");
+		if (cnt < 1)
+			throw new IllegalArgumentException("Invalid args.");
 		final Iterator<Message> it = msgs.iterator();
 		if (!it.hasNext())
 			return;

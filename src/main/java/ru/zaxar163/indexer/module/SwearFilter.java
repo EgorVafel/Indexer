@@ -13,15 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 
 import ru.zaxar163.indexer.Indexer;
+import ru.zaxar163.indexer.command.CommandManager;
 
 public class SwearFilter {
 	private static final OpenOption[] WRITE_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.WRITE,
@@ -61,7 +64,7 @@ public class SwearFilter {
 	private boolean enabled = true;
 
 	public SwearFilter(final Indexer indexer) {
-		enabledChannels = new HashSet<>();
+		enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
 		badWords = new HashSet<>();
 		indexer.client.addMessageCreateListener(event -> {
 			if (enabledChannels.contains(Long.valueOf(event.getChannel().getId())))
@@ -99,7 +102,7 @@ public class SwearFilter {
 				System.err.println("SwearFilter disabled. File 'channels.lst' not found");
 				return;
 			}
-
+		CommandManager.filterSrvList(indexer.client, enabledChannels);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try (PrintWriter readerChannels = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream("channels.lst"), StandardCharsets.UTF_8))) {

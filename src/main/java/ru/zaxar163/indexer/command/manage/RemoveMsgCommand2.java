@@ -20,7 +20,8 @@ public class RemoveMsgCommand2 extends Command {
 
 	@Override
 	public boolean canUse(final Message message) {
-		return super.canUse(message) && RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_MESSAGES);
+		return super.canUse(message)
+				&& RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_MESSAGES);
 	}
 
 	@Override
@@ -33,14 +34,15 @@ public class RemoveMsgCommand2 extends Command {
 		if (!it.hasNext())
 			return;
 		int i = 0;
-		List<User> users = message.getMentionedUsers();
+		final List<User> users = message.getMentionedUsers();
 		while (it.hasNext() && i < cnt) {
-			Message i1 = it.next();
+			final Message i1 = it.next();
 			if (i1.getUserAuthor().filter(users::contains).isPresent()) {
 				i1.delete();
 				i++;
 			}
 		}
 		msgs.close();
+		message.delete();
 	}
 }

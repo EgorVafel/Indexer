@@ -19,7 +19,8 @@ public class ExecChannelCommand extends Command {
 
 	@Override
 	public boolean canUse(final Message message) {
-		return super.canUse(message) && RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_CHANNELS);
+		return super.canUse(message)
+				&& RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_CHANNELS);
 	}
 
 	@Override

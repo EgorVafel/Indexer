@@ -15,7 +15,6 @@ import com.google.gson.stream.JsonWriter;
 
 import ru.zaxar163.indexer.command.CommandManager;
 import ru.zaxar163.indexer.command.basic.HelpCommand;
-import ru.zaxar163.indexer.command.basic.SrvOwnersManageCmd;
 import ru.zaxar163.indexer.command.manage.ExecChannelCommand;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand1;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand2;
@@ -37,18 +36,15 @@ public class Indexer {
 
 	public final DiscordApi client;
 	public final CommandManager commandManager;
-	public final RoleManager roler;
 	public final SwearFilter swearFilter;
 
 	private Indexer() throws Exception {
 		config = readConfig();
 
 		client = new DiscordApiBuilder().setToken(config.token).login().join();
-		roler = new RoleManager(client);
 		commandManager = new CommandManager(this);
 		swearFilter = new SwearFilter(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
-		commandManager.registerCommand(new SrvOwnersManageCmd(this));
 		commandManager.registerCommand(new RemoveMsgCommand1(this));
 		commandManager.registerCommand(new RemoveMsgCommand2(this));
 		commandManager.registerCommand(new SwearFilterCommand(this));
