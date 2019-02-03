@@ -17,9 +17,9 @@ import ru.zaxar163.indexer.command.CommandManager;
 import ru.zaxar163.indexer.command.basic.HelpCommand;
 import ru.zaxar163.indexer.command.basic.SrvOwnersManageCmd;
 import ru.zaxar163.indexer.command.manage.ExecChannelCommand;
-import ru.zaxar163.indexer.command.manage.RemoveMsgCommand;
+import ru.zaxar163.indexer.command.manage.RemoveMsgCommand1;
+import ru.zaxar163.indexer.command.manage.RemoveMsgCommand2;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
-import ru.zaxar163.indexer.module.PrivateWorker;
 import ru.zaxar163.indexer.module.SwearFilter;
 
 public class Indexer {
@@ -39,7 +39,6 @@ public class Indexer {
 	public final CommandManager commandManager;
 	public final RoleManager roler;
 	public final SwearFilter swearFilter;
-	public final PrivateWorker privateWorker;
 
 	private Indexer() throws Exception {
 		config = readConfig();
@@ -47,11 +46,11 @@ public class Indexer {
 		client = new DiscordApiBuilder().setToken(config.token).login().join();
 		roler = new RoleManager(client);
 		commandManager = new CommandManager(this);
-		privateWorker = new PrivateWorker();
 		swearFilter = new SwearFilter(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new SrvOwnersManageCmd(this));
-		commandManager.registerCommand(new RemoveMsgCommand(this));
+		commandManager.registerCommand(new RemoveMsgCommand1(this));
+		commandManager.registerCommand(new RemoveMsgCommand2(this));
 		commandManager.registerCommand(new SwearFilterCommand(this));
 		commandManager.registerCommand(new ExecChannelCommand(this));
 	}

@@ -10,12 +10,11 @@ import ru.zaxar163.indexer.module.PrivateWorker;
 
 public class HelpCommand extends Command {
 	private final CommandManager commands;
-	private final PrivateWorker privateWorker;
 
 	public HelpCommand(final CommandManager commands) {
 		super("help", "`!help` - список команд\n" + "`!help <команда>` - информация о команде");
+		super.aliases.add("h");
 		this.commands = commands;
-		privateWorker = commands.app.privateWorker;
 	}
 
 	@Override
@@ -31,7 +30,7 @@ public class HelpCommand extends Command {
 				msg = command.help;
 			else
 				msg = "У команды !" + command.command + " нет описания :frowning2:";
-			privateWorker.sendMessage(message.getUserAuthor().get(), msg);
+			PrivateWorker.sendMessage(message.getUserAuthor().get(), msg);
 			return;
 		}
 		String msg = "Доступные для вас команды: ```";
@@ -48,6 +47,6 @@ public class HelpCommand extends Command {
 		msg += "```";
 		msg += "Напишите `!help <команда>` на сервере GravitLauncher чтобы посмотреть описание команды";
 		message.delete();
-		privateWorker.sendMessage(message.getUserAuthor().get(), msg);
+		PrivateWorker.sendMessage(message.getUserAuthor().get(), msg);
 	}
 }

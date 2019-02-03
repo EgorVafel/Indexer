@@ -9,7 +9,7 @@ public class SrvOwnersManageCmd extends Command {
 	private final Indexer i;
 
 	public SrvOwnersManageCmd(final Indexer i) {
-		super("srv-admin", "!srv-admin - управляет ролью владелец сервера на этом сервере.");
+		super("srv-admin", "!srv-admin - управляет ролью владелец сервера на этом сервере");
 		this.i = i;
 	}
 

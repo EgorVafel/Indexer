@@ -1,6 +1,7 @@
 package ru.zaxar163.indexer.command.manage;
 
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.permission.PermissionType;
 
 import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.RoleManager;
@@ -18,7 +19,7 @@ public class SwearFilterCommand extends Command {
 
 	@Override
 	public boolean canUse(final Message message) {
-		return RoleManager.hasRole(indexer.roler.middleDeveloper, message.getUserAuthor());
+		return super.canUse(message) && RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_CHANNELS);
 	}
 
 	@Override

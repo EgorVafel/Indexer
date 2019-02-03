@@ -20,7 +20,7 @@ public abstract class Command {
 	}
 
 	public boolean canUse(final Message message) {
-		if (!message.getChannel().asServerChannel().isPresent())
+		if (!message.getUserAuthor().isPresent())
 			return false;
 		return true;
 	}
