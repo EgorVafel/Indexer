@@ -33,8 +33,7 @@ public class SwearFilterCommand extends Command {
 		}
 		if (args.length < 1)
 			throw new IllegalArgumentException("Illegal args");
-		message.getChannel().asServerTextChannel().get().getServer().getChannels().stream()
-				.filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
+		message.getMentionedChannels().stream()
 				.filter(Utils.channelMatches(args[0])).forEach(e -> {
 					if (swearFilter.isActive(e)) {
 						swearFilter.disableFor(e);

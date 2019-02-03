@@ -6,8 +6,6 @@ import org.javacord.api.entity.permission.PermissionType;
 import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
-import ru.zaxar163.indexer.command.CommandManager;
-
 public class ExecChannelCommand extends Command {
 
 	private final Indexer indexer;
@@ -27,8 +25,7 @@ public class ExecChannelCommand extends Command {
 	public void onCommand(final Message message, final String[] args) throws Exception {
 		if (args.length < 1)
 			throw new IllegalArgumentException("Illegal args");
-		message.getChannel().asServerTextChannel().get().getServer().getChannels().stream()
-				.filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
+		message.getMentionedChannels().stream()
 				.filter(Utils.channelMatches(args[0])).forEach(indexer.commandManager::work);
 		message.delete();
 	}
