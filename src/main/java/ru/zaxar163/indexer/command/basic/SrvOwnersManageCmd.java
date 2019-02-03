@@ -23,5 +23,6 @@ public class SrvOwnersManageCmd extends Command {
 
 	@Override
 	public void onCommand(final Message message, final String[] args) throws Exception {
+		message.delete();
 	}
 }

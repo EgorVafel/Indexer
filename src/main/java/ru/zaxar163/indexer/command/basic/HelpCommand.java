@@ -22,7 +22,8 @@ public class HelpCommand extends Command {
 		if (args.length != 0) {
 			final Command command = commands.getCommand(args[0]);
 			if (command == null) {
-				message.getChannel().sendMessage("Нет такой команды.");
+				PrivateWorker.sendMessage(message.getUserAuthor().get(), "Нет такой команды.");
+				message.delete();
 				return;
 			}
 			String msg;
@@ -31,6 +32,7 @@ public class HelpCommand extends Command {
 			else
 				msg = "У команды !" + command.command + " нет описания :frowning2:";
 			PrivateWorker.sendMessage(message.getUserAuthor().get(), msg);
+			message.delete();
 			return;
 		}
 		String msg = "Доступные для вас команды: ```";
