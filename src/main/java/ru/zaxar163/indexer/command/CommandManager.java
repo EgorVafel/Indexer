@@ -8,39 +8,27 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 
 import ru.zaxar163.indexer.Indexer;
+import ru.zaxar163.indexer.Utils;
 
 public class CommandManager {
 	public static final Class<ServerTextChannel> stc = ServerTextChannel.class;
 
-	public static void filterSrvList(final DiscordApi client, final Set<Long> enabledChannels) {
-		final List<Long> applied = new ArrayList<>();
-		client.getServerTextChannels().stream().mapToLong(e -> e.getId()).forEach(e -> {
-			if (enabledChannels.contains(Long.valueOf(e)))
-				applied.add(e);
-		});
-		enabledChannels.removeIf(e -> !applied.contains(e));
-	}
-
 	public final Indexer app;
+
 	public Map<String, Command> registered;
-
 	public Map<String, Command> alises;
-
 	public final Set<Long> enabledChannels;
 
 	public CommandManager(final Indexer app) {
@@ -74,7 +62,7 @@ public class CommandManager {
 			e.getServer().getChannels().stream().filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
 					.forEach(this::attachChannelListener);
 		});
-		filterSrvList(app.client, enabledChannels);
+		Utils.filterSrvList(app.client, enabledChannels);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try (PrintWriter readerChannels = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream("channels_cmd.lst"), StandardCharsets.UTF_8))) {

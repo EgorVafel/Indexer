@@ -4,7 +4,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.PermissionType;
 
 import ru.zaxar163.indexer.Indexer;
-import ru.zaxar163.indexer.RoleManager;
+import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.command.CommandManager;
 
@@ -20,7 +20,7 @@ public class ExecChannelCommand extends Command {
 	@Override
 	public boolean canUse(final Message message) {
 		return super.canUse(message)
-				&& RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_CHANNELS);
+				&& Utils.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_CHANNELS);
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class ExecChannelCommand extends Command {
 			throw new IllegalArgumentException("Illegal args");
 		message.getChannel().asServerTextChannel().get().getServer().getChannels().stream()
 				.filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
-				.filter(RoleManager.channelMatches(args[0])).forEach(indexer.commandManager::work);
+				.filter(Utils.channelMatches(args[0])).forEach(indexer.commandManager::work);
 		message.delete();
 	}
 

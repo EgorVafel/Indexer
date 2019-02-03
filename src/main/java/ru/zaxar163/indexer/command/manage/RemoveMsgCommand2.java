@@ -9,7 +9,7 @@ import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.user.User;
 
 import ru.zaxar163.indexer.Indexer;
-import ru.zaxar163.indexer.RoleManager;
+import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
 
 public class RemoveMsgCommand2 extends Command {
@@ -21,7 +21,7 @@ public class RemoveMsgCommand2 extends Command {
 	@Override
 	public boolean canUse(final Message message) {
 		return super.canUse(message)
-				&& RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_MESSAGES);
+				&& Utils.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_MESSAGES);
 	}
 
 	@Override

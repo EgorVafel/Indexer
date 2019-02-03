@@ -4,7 +4,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.PermissionType;
 
 import ru.zaxar163.indexer.Indexer;
-import ru.zaxar163.indexer.RoleManager;
+import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.command.CommandManager;
 import ru.zaxar163.indexer.module.SwearFilter;
@@ -20,7 +20,7 @@ public class SwearFilterCommand extends Command {
 	@Override
 	public boolean canUse(final Message message) {
 		return super.canUse(message)
-				&& RoleManager.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_CHANNELS);
+				&& Utils.hasAnyPerm(message, PermissionType.ADMINISTRATOR, PermissionType.MANAGE_CHANNELS);
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class SwearFilterCommand extends Command {
 			throw new IllegalArgumentException("Illegal args");
 		message.getChannel().asServerTextChannel().get().getServer().getChannels().stream()
 				.filter(CommandManager.stc::isInstance).map(CommandManager.stc::cast)
-				.filter(RoleManager.channelMatches(args[0])).forEach(e -> {
+				.filter(Utils.channelMatches(args[0])).forEach(e -> {
 					if (swearFilter.isActive(e)) {
 						swearFilter.disableFor(e);
 						e.sendMessage("Фильтр мата для этого канала теперь **отключен**");

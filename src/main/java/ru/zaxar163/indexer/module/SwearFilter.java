@@ -1,7 +1,6 @@
 package ru.zaxar163.indexer.module;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,37 +8,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 
 import ru.zaxar163.indexer.Indexer;
-import ru.zaxar163.indexer.command.CommandManager;
+import ru.zaxar163.indexer.Utils;
 
 public class SwearFilter {
-	private static final OpenOption[] WRITE_OPTIONS = { StandardOpenOption.CREATE, StandardOpenOption.WRITE,
-			StandardOpenOption.TRUNCATE_EXISTING };
-
-	public static void main(final String... args) throws Throwable {
-		try (BufferedWriter out = Files.newBufferedWriter(Paths.get("out_swear.txt"), StandardCharsets.UTF_8,
-				SwearFilter.WRITE_OPTIONS)) {
-			final List<String> lines = Files.readAllLines(Paths.get("in_swear.txt"), StandardCharsets.UTF_8).stream()
-					.filter(e -> !e.isEmpty()).map(e -> e.replace('|', '\n')).collect(Collectors.toList());
-			for (final String line : lines)
-				out.append(line);
-			out.flush();
-		}
-	}
 
 	private static String normalizeWord(String str) {
 		if (str.isEmpty())
@@ -102,7 +82,7 @@ public class SwearFilter {
 				System.err.println("SwearFilter disabled. File 'channels.lst' not found");
 				return;
 			}
-		CommandManager.filterSrvList(indexer.client, enabledChannels);
+		Utils.filterSrvList(indexer.client, enabledChannels);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try (PrintWriter readerChannels = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream("channels.lst"), StandardCharsets.UTF_8))) {
