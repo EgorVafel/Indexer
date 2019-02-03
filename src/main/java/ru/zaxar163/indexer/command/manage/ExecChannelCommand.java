@@ -25,8 +25,7 @@ public class ExecChannelCommand extends Command {
 	public void onCommand(final Message message, final String[] args) throws Exception {
 		if (args.length < 1)
 			throw new IllegalArgumentException("Illegal args");
-		message.getMentionedChannels().stream()
-				.filter(Utils.channelMatches(args[0])).forEach(indexer.commandManager::work);
+		message.getMentionedChannels().stream().forEach(indexer.commandManager::work);
 		message.delete();
 	}
 

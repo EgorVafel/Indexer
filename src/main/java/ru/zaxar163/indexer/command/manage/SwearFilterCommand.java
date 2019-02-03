@@ -6,7 +6,6 @@ import org.javacord.api.entity.permission.PermissionType;
 import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
-import ru.zaxar163.indexer.command.CommandManager;
 import ru.zaxar163.indexer.module.SwearFilter;
 
 public class SwearFilterCommand extends Command {
@@ -33,8 +32,7 @@ public class SwearFilterCommand extends Command {
 		}
 		if (args.length < 1)
 			throw new IllegalArgumentException("Illegal args");
-		message.getMentionedChannels().stream()
-				.filter(Utils.channelMatches(args[0])).forEach(e -> {
+		message.getMentionedChannels().stream().forEach(e -> {
 					if (swearFilter.isActive(e)) {
 						swearFilter.disableFor(e);
 						e.sendMessage("Фильтр мата для этого канала теперь **отключен**");
