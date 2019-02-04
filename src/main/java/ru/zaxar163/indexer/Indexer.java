@@ -53,8 +53,8 @@ public class Indexer {
 		commandManager.registerCommand(new RemoveMsgCommand());
 		commandManager.registerCommand(new RemoveMsgCommand1());
 		commandManager.registerCommand(new RemoveMsgCommand2());
-		commandManager.registerCommand(new SwearFilterCommand(this));
-		commandManager.registerCommand(new ExecChannelCommand(this));
+		commandManager.registerCommand(new SwearFilterCommand(swearFilter));
+		commandManager.registerCommand(new ExecChannelCommand(commandManager));
 	}
 
 	private Config readConfig() throws IOException {
