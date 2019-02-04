@@ -6,9 +6,9 @@ import java.util.List;
 import org.javacord.api.entity.message.Message;
 
 public abstract class Command {
+	public final List<String> aliases = new ArrayList<>();
 	public final String command;
 	public final String help;
-	public final List<String> aliases = new ArrayList<>();
 
 	public Command(final String command) {
 		this(command, null);

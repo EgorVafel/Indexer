@@ -37,11 +37,11 @@ public class SwearFilter {
 				.replace('s', 'с');
 	}
 
-	private final Set<Long> enabledChannels;
-
 	private final Set<String> badWords;
 
 	private boolean enabled = true;
+
+	private final Set<Long> enabledChannels;
 
 	public SwearFilter(final Indexer indexer) {
 		enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());

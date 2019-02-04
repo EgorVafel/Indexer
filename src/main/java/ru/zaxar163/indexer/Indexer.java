@@ -19,6 +19,7 @@ import com.google.gson.stream.JsonWriter;
 import ru.zaxar163.indexer.command.CommandManager;
 import ru.zaxar163.indexer.command.basic.HelpCommand;
 import ru.zaxar163.indexer.command.manage.ExecChannelCommand;
+import ru.zaxar163.indexer.command.manage.RemoveMsgCommand;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand1;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand2;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
@@ -35,11 +36,11 @@ public class Indexer {
 				System.exit(0);
 	}
 
-	public final Gson gson = new Gson();
-	public final Config config;
-
 	public final DiscordApi client;
 	public final CommandManager commandManager;
+
+	public final Config config;
+	public final Gson gson = new Gson();
 	public final SwearFilter swearFilter;
 
 	private Indexer() throws Exception {
@@ -49,8 +50,9 @@ public class Indexer {
 		commandManager = new CommandManager(this);
 		swearFilter = new SwearFilter(this);
 		commandManager.registerCommand(new HelpCommand(commandManager));
-		commandManager.registerCommand(new RemoveMsgCommand1(this));
-		commandManager.registerCommand(new RemoveMsgCommand2(this));
+		commandManager.registerCommand(new RemoveMsgCommand());
+		commandManager.registerCommand(new RemoveMsgCommand1());
+		commandManager.registerCommand(new RemoveMsgCommand2());
 		commandManager.registerCommand(new SwearFilterCommand(this));
 		commandManager.registerCommand(new ExecChannelCommand(this));
 	}

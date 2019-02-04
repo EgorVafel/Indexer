@@ -9,14 +9,13 @@ import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 
-import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
 
 public class RemoveMsgCommand2 extends Command {
-	public RemoveMsgCommand2(final Indexer indexer) {
-		super("removemsgnamed", "`!removemsgnamed` - удаляет сообщения пользователей/всех принадлежащих к определённой роле, лимит задан параметрами");
-		super.aliases.add("rmn");
+	public RemoveMsgCommand2() {
+		super("rmn",
+				"`!rmn <лимит> <упоминания пользователей/ролей...>` - удаляет сообщения пользователей/всех принадлежащих к определённой роле, лимит задан параметрами");
 	}
 
 	@Override
@@ -39,7 +38,8 @@ public class RemoveMsgCommand2 extends Command {
 		final List<Role> roles = message.getMentionedRoles();
 		while (it.hasNext() && i < cnt) {
 			final Message i1 = it.next();
-			if (i1.getUserAuthor().filter(users::contains).isPresent() || i1.getUserAuthor().filter(e1 -> roles.stream().anyMatch(e -> e.getUsers().contains(e1))).isPresent()) {
+			if (i1.getUserAuthor().filter(users::contains).isPresent() || i1.getUserAuthor()
+					.filter(e1 -> roles.stream().anyMatch(e -> e.getUsers().contains(e1))).isPresent()) {
 				i1.delete();
 				i++;
 			}

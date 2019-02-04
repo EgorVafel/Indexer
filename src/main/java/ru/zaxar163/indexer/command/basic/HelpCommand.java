@@ -47,7 +47,8 @@ public class HelpCommand extends Command {
 			msg += entry.getKey();
 		}
 		msg += "```";
-		msg += "Напишите `!help <команда>` на сервере " + message.getServer().get().getName() + " чтобы посмотреть описание команды";
+		msg += "Напишите `!help <команда>` на сервере " + message.getServer().get().getName()
+				+ " чтобы посмотреть описание команды";
 		message.delete();
 		PrivateWorker.sendMessage(message.getUserAuthor().get(), msg);
 	}

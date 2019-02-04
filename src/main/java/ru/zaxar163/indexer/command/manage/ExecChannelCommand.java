@@ -3,16 +3,17 @@ package ru.zaxar163.indexer.command.manage;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.PermissionType;
 
-import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
+import ru.zaxar163.indexer.command.CommandManager;
+
 public class ExecChannelCommand extends Command {
 
-	private final Indexer indexer;
+	private final CommandManager commandManager;
 
-	public ExecChannelCommand(final Indexer indexer) {
+	public ExecChannelCommand(final CommandManager commandManager) {
 		super("execable", "`!execable` - включает/выключает исполнение команд в канале");
-		this.indexer = indexer;
+		this.commandManager = commandManager;
 	}
 
 	@Override
@@ -25,7 +26,7 @@ public class ExecChannelCommand extends Command {
 	public void onCommand(final Message message, final String[] args) throws Exception {
 		if (args.length < 1)
 			throw new IllegalArgumentException("Illegal args");
-		message.getMentionedChannels().stream().forEach(indexer.commandManager::work);
+		message.getMentionedChannels().stream().forEach(commandManager::work);
 		message.delete();
 	}
 

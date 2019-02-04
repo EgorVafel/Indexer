@@ -25,11 +25,11 @@ import ru.zaxar163.indexer.Utils;
 public class CommandManager {
 	public static final Class<ServerTextChannel> stc = ServerTextChannel.class;
 
-	public final Indexer app;
-
-	public Map<String, Command> registered;
 	public Map<String, Command> alises;
+
+	public final Indexer app;
 	public final Set<Long> enabledChannels;
+	public Map<String, Command> registered;
 
 	public CommandManager(final Indexer app) {
 		this.app = app;
