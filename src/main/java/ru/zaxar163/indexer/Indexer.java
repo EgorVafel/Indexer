@@ -23,6 +23,11 @@ import ru.zaxar163.indexer.command.manage.RemoveMsgCommand;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand1;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand2;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
+import ru.zaxar163.indexer.command.manage.faq.EnableFAQ;
+import ru.zaxar163.indexer.command.manage.faq.ListFAQ;
+import ru.zaxar163.indexer.command.manage.faq.RegisterFAQ;
+import ru.zaxar163.indexer.command.manage.faq.RemoveFAQ;
+import ru.zaxar163.indexer.module.FaqWorker;
 import ru.zaxar163.indexer.module.SwearFilter;
 
 public class Indexer {
@@ -42,19 +47,28 @@ public class Indexer {
 	public final Config config;
 	public final Gson gson = new Gson();
 	public final SwearFilter swearFilter;
+	public final FaqWorker faqWorker;
 
 	private Indexer() throws Exception {
 		config = readConfig();
 
 		client = new DiscordApiBuilder().setToken(config.token).login().join();
+		
 		commandManager = new CommandManager(this);
 		swearFilter = new SwearFilter(this);
+		faqWorker = new FaqWorker(client);
+		
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new RemoveMsgCommand());
 		commandManager.registerCommand(new RemoveMsgCommand1());
 		commandManager.registerCommand(new RemoveMsgCommand2());
 		commandManager.registerCommand(new SwearFilterCommand(swearFilter));
 		commandManager.registerCommand(new ExecChannelCommand(commandManager));
+		
+		commandManager.registerCommand(new EnableFAQ(faqWorker));
+		commandManager.registerCommand(new RegisterFAQ(faqWorker));
+		commandManager.registerCommand(new RemoveFAQ(faqWorker));
+		commandManager.registerCommand(new ListFAQ(faqWorker));
 	}
 
 	private Config readConfig() throws IOException {
