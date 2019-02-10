@@ -27,6 +27,6 @@ public class RemoveMsgCommand extends Command {
 		if (cnt < 1 || cnt > 100)
 			throw new IllegalArgumentException("Invalid args.");
 		final ServerTextChannel ctx = message.getServerTextChannel().get();
-		ctx.deleteMessages(ctx.getMessages(cnt+1).join()).join();
+		ctx.deleteMessages(ctx.getMessages(cnt + 1).join()).join();
 	}
 }

@@ -1,7 +1,6 @@
 package ru.zaxar163.indexer.module;
 
 import java.io.BufferedReader;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -24,6 +23,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 public class FaqWorker {
 	public final Map<String, String> faq = new ConcurrentHashMap<>();
 	public final Set<Long> enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
 	public FaqWorker(DiscordApi api) {
 		if (new File("channels_faq.lst").exists())
 			try (BufferedReader readerChannels = new BufferedReader(
@@ -36,8 +36,7 @@ public class FaqWorker {
 				return;
 			}
 		if (new File("msgs.lst").exists())
-			try (DataInputStream reader = 
-					new DataInputStream(new FileInputStream("msgs.lst"))) {
+			try (DataInputStream reader = new DataInputStream(new FileInputStream("msgs.lst"))) {
 				while (reader.available() > 0)
 					faq.put(reader.readUTF(), reader.readUTF());
 			} catch (final Exception ex) {
@@ -45,13 +44,15 @@ public class FaqWorker {
 				return;
 			}
 		api.addMessageCreateListener(e -> {
-			if (!active(e.getMessage().getServerTextChannel())) return;
+			if (!active(e.getMessage().getServerTextChannel()))
+				return;
 			String str = e.getMessage().getContent();
 			faq.forEach((k, v) -> {
-				if (str.contains(k)) e.getMessage().getServerTextChannel().ifPresent(a -> a.sendMessage(v));
+				if (str.contains(k))
+					e.getMessage().getServerTextChannel().ifPresent(a -> a.sendMessage(v));
 			});
 		});
-		
+
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try (PrintWriter readerChannels = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream("channels_faq.lst"), StandardCharsets.UTF_8))) {
@@ -59,8 +60,7 @@ public class FaqWorker {
 			} catch (final Exception ex) {
 				System.err.println(ex.toString());
 			}
-			try (DataOutputStream readerChannels =
-					new DataOutputStream(new FileOutputStream("msgs.lst"))) {
+			try (DataOutputStream readerChannels = new DataOutputStream(new FileOutputStream("msgs.lst"))) {
 				faq.entrySet().forEach(e -> {
 					try {
 						readerChannels.writeUTF(e.getKey());
@@ -74,9 +74,10 @@ public class FaqWorker {
 			}
 		}, "Saving channels thread"));
 	}
-	
+
 	private boolean active(Optional<ServerTextChannel> serverTextChannel) {
-		if (!serverTextChannel.isPresent()) return false;
+		if (!serverTextChannel.isPresent())
+			return false;
 		return enabledChannels.contains(serverTextChannel.get().getId());
 	}
 
@@ -84,7 +85,7 @@ public class FaqWorker {
 		enabledChannels.add(ch.getId());
 		ch.sendMessage("Проверка FAQ для этого канала теперь **включена**");
 	}
-	
+
 	public void removeChannelListener(final ServerTextChannel ch) {
 		enabledChannels.removeIf(e -> e.longValue() == ch.getId());
 		ch.sendMessage("Проверка FAQ для этого канала теперь **отключена**");

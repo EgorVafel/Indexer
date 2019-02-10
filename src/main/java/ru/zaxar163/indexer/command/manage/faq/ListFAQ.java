@@ -8,7 +8,7 @@ import ru.zaxar163.indexer.module.FaqWorker;
 public class ListFAQ extends Command {
 
 	private final FaqWorker w;
-	
+
 	public ListFAQ(FaqWorker w) {
 		super("listfaq", "`!listfaq` - выводит все FAQ.");
 		this.w = w;

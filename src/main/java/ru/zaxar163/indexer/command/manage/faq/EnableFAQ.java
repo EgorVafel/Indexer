@@ -8,7 +8,7 @@ import ru.zaxar163.indexer.module.FaqWorker;
 public class EnableFAQ extends Command {
 
 	private final FaqWorker w;
-	
+
 	public EnableFAQ(FaqWorker w) {
 		super("faq", "`!faq` - включает/выключает проверку сообщений на частый вопрос в канале");
 		this.w = w;

@@ -8,7 +8,7 @@ import ru.zaxar163.indexer.module.FaqWorker;
 public class RemoveFAQ extends Command {
 
 	private final FaqWorker w;
-	
+
 	public RemoveFAQ(FaqWorker w) {
 		super("remfaq", "`!remfaq <проблема>` - удаляет проблему из FAQ");
 		this.w = w;

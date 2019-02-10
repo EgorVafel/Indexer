@@ -53,18 +53,18 @@ public class Indexer {
 		config = readConfig();
 
 		client = new DiscordApiBuilder().setToken(config.token).login().join();
-		
+
 		commandManager = new CommandManager(this);
 		swearFilter = new SwearFilter(this);
 		faqWorker = new FaqWorker(client);
-		
+
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new RemoveMsgCommand());
 		commandManager.registerCommand(new RemoveMsgCommand1());
 		commandManager.registerCommand(new RemoveMsgCommand2());
 		commandManager.registerCommand(new SwearFilterCommand(swearFilter));
 		commandManager.registerCommand(new ExecChannelCommand(commandManager));
-		
+
 		commandManager.registerCommand(new EnableFAQ(faqWorker));
 		commandManager.registerCommand(new RegisterFAQ(faqWorker));
 		commandManager.registerCommand(new RemoveFAQ(faqWorker));
