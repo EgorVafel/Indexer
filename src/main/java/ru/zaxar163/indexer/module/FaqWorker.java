@@ -10,16 +10,26 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 
+import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.module.FaqManager.FaqProblem;
 
 public class FaqWorker {
+	public static StringBuilder solve(FaqProblem problem) {
+		final StringBuilder sb = new StringBuilder();
+		problem.solutions.forEach(s -> {
+			sb.append(s);
+			sb.append('\n');
+		});
+		return sb;
+	}
+
 	public final Set<Long> enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
-	public final FaqManager faqManager;
-	public FaqWorker(DiscordApi api, FaqManager faqManager) {
-		this.faqManager = faqManager;
+	public final Indexer i;
+
+	public FaqWorker(Indexer i) {
+		this.i = i;
 		if (new File("channels_faq.lst").exists())
 			try (BufferedReader readerChannels = new BufferedReader(
 					new InputStreamReader(new FileInputStream("channels_cmd.lst"), StandardCharsets.UTF_8))) {
@@ -30,27 +40,20 @@ public class FaqWorker {
 				System.err.println("File 'channels_cmd.lst' parsing error");
 				return;
 			}
-		api.addMessageCreateListener(e -> {
+		i.client.addMessageCreateListener(e -> {
 			if (!active(e.getMessage().getServerTextChannel()))
 				return;
-			if (e.getMessage().getAuthor().isYourself()) return;
-			FaqProblem problem = faqManager.findProblem(e.getMessage().getContent());
-			if (problem == null) return;
-			StringBuilder sb = solve(problem);
+			if (e.getMessage().getAuthor().isYourself())
+				return;
+			final FaqProblem problem = this.i.faqManager.findProblem(e.getMessage().getContent());
+			if (problem == null)
+				return;
+			final StringBuilder sb = solve(problem);
 			e.getMessage().getUserAuthor().ifPresent(u -> {
 				sb.append(u.getMentionTag());
 			});
 			e.getMessage().getChannel().sendMessage(sb.toString());
 		});
-	}
-
-	public static StringBuilder solve(FaqProblem problem) {
-		StringBuilder sb = new StringBuilder();
-		problem.solutions.forEach(s -> {
-			sb.append(s);
-			sb.append('\n');
-		});
-		return sb;
 	}
 
 	private boolean active(Optional<ServerTextChannel> serverTextChannel) {

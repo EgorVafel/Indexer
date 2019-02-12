@@ -7,12 +7,11 @@ import ru.zaxar163.indexer.Utils;
 import ru.zaxar163.indexer.command.Command;
 import ru.zaxar163.indexer.module.FaqWorker;
 
-public class ListFAQ extends Command {
-
+public class ReloadFAQ extends Command {
 	private final FaqWorker w;
 
-	public ListFAQ(FaqWorker w) {
-		super("listfaq", "`!listfaq` - выводит все FAQ.");
+	public ReloadFAQ(FaqWorker w) {
+		super("reloadfaq", "`!reloadfaq` - перезагружает списки FAQ.");
 		this.w = w;
 	}
 
@@ -24,12 +23,7 @@ public class ListFAQ extends Command {
 
 	@Override
 	public void onCommand(Message message, String[] args) throws Exception {
-		message.getServerTextChannel().ifPresent(e -> {
-			w.i.faqManager.problems.forEach((a, b) -> {
-				e.sendMessage(new StringBuilder().append("Проблема: ").append(a).append('\n').append("Решение: ")
-						.append(FaqWorker.solve(b)).toString());
-			});
-		});
-		message.delete();
+		w.i.faqManager = w.i.readFaqDataBase();
+		message.getChannel().sendMessage("Успешно перезагружены листы FAQ");
 	}
 }
