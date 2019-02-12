@@ -87,7 +87,7 @@ public class FaqManager {
     {
         templates.remove(templateName);
     }
-    public String compileTemplate(FaqTemplate template, FaqProblem problem)
+    public String compileTemplate(FaqTemplate template, FaqProblem problem, String username)
     {
         StringBuilder builder = new StringBuilder();
         for(String solution : problem.solutions)
@@ -95,6 +95,6 @@ public class FaqManager {
             String appendStr = template.solutions.replace("%_SOLUTION_%", solution);
             builder.append(appendStr);
         }
-        return template.main.replace("%NAME%",problem.name).replace("%DESCRIPTION%", problem.description).replace("%SOLUTIONS%", builder.toString());
+        return template.main.replace("%USERNAME%", username).replace("%NAME%",problem.name).replace("%DESCRIPTION%", problem.description).replace("%SOLUTIONS%", builder.toString());
     }
 }
