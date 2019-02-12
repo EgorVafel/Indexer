@@ -1,15 +1,12 @@
 package ru.zaxar163.indexer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gson.stream.JsonReader;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 
@@ -27,6 +24,7 @@ import ru.zaxar163.indexer.command.manage.faq.EnableFAQ;
 import ru.zaxar163.indexer.command.manage.faq.ListFAQ;
 import ru.zaxar163.indexer.command.manage.faq.RegisterFAQ;
 import ru.zaxar163.indexer.command.manage.faq.RemoveFAQ;
+import ru.zaxar163.indexer.module.FaqManager;
 import ru.zaxar163.indexer.module.FaqWorker;
 import ru.zaxar163.indexer.module.SwearFilter;
 
@@ -48,6 +46,7 @@ public class Indexer {
 	public final Gson gson = new Gson();
 	public final SwearFilter swearFilter;
 	public final FaqWorker faqWorker;
+	public final FaqManager faqManager;
 
 	private Indexer() throws Exception {
 		config = readConfig();
@@ -56,7 +55,17 @@ public class Indexer {
 
 		commandManager = new CommandManager(this);
 		swearFilter = new SwearFilter(this);
-		faqWorker = new FaqWorker(client);
+		faqManager = readFaqDataBase();
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			final File confFile = new File("faq.json");
+			try(JsonWriter writer = new JsonWriter(new FileWriter(confFile)))
+			{
+				gson.toJson(faqManager,FaqManager.class, writer);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}));
+		faqWorker = new FaqWorker(client, faqManager);
 
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new RemoveMsgCommand());
@@ -70,7 +79,26 @@ public class Indexer {
 		commandManager.registerCommand(new RemoveFAQ(faqWorker));
 		commandManager.registerCommand(new ListFAQ(faqWorker));
 	}
-
+	private FaqManager readFaqDataBase() throws IOException
+	{
+		final File confFile = new File("faq.json");
+		if(!confFile.exists())
+		{
+			FaqManager manager = new FaqManager();
+			try(JsonWriter writer = new JsonWriter(new FileWriter(confFile)))
+			{
+				gson.toJson(manager,FaqManager.class, writer);
+			}
+			return manager;
+		}
+		else
+		{
+			try(JsonReader reader = new JsonReader(new FileReader(confFile)))
+			{
+				return gson.fromJson(reader, FaqManager.class);
+			}
+		}
+	}
 	private Config readConfig() throws IOException {
 		final File confFile = new File("config.json");
 		Config config = null;
