@@ -1,9 +1,6 @@
 package ru.zaxar163.indexer.module;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.TreeMap;
+import java.util.*;
 
 public class FaqManager {
     public class FaqProblem
@@ -24,12 +21,17 @@ public class FaqManager {
             this.pattern = pattern;
         }
     }
+    public class FaqTemplate
+    {
+        public String main;
+        public String solutions;
+    }
     public enum FaqPatternType
     {
-        COMPARE
+        CONTAINS, LOW_CONTAINS, NO_SEPARATOR
     }
     public TreeMap<String, FaqProblem> problems = new TreeMap<>();
-    public HashMap<String, String> templates = new HashMap<>();
+    public HashMap<String, FaqTemplate> templates = new HashMap<>();
     public void addProblem(String name)
     {
         FaqProblem problem = new FaqProblem();
@@ -73,5 +75,47 @@ public class FaqManager {
     public boolean isProblem(String problemName)
     {
         return problems.containsKey(problemName);
+    }
+    public void addTemplate(String templateName, FaqTemplate template)
+    {
+        templates.put(templateName,template);
+    }
+    public void removeTemplate(String templateName)
+    {
+        templates.remove(templateName);
+    }
+    public String compileTemplate(FaqTemplate template, FaqProblem problem, String username)
+    {
+        StringBuilder builder = new StringBuilder();
+        for(String solution : problem.solutions)
+        {
+            String appendStr = template.solutions.replace("%_SOLUTION_%", solution);
+            builder.append(appendStr);
+        }
+        return template.main.replace("%USERNAME%", username).replace("%NAME%",problem.name).replace("%DESCRIPTION%", problem.description).replace("%SOLUTIONS%", builder.toString());
+    }
+    public FaqProblem findProblem(String message)
+    {
+        for(Map.Entry<String,FaqProblem> p : problems.entrySet())
+        {
+            FaqProblem problem = p.getValue();
+            for(FaqPattern pattern : problem.patterns)
+            {
+                switch(pattern.pattern)
+                {
+
+                    case CONTAINS:
+                        if(message.contains(pattern.str)) return problem;
+                        break;
+                    case LOW_CONTAINS:
+                        if(message.toLowerCase().contains(pattern.str.toLowerCase())) return problem;
+                        break;
+                    case NO_SEPARATOR:
+                        if(message.toLowerCase().replaceAll("\\W","").contains(pattern.str.toLowerCase())) return problem;
+                        break;
+                }
+            }
+        }
+        return null;
     }
 }

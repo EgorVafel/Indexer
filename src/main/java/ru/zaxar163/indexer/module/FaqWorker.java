@@ -23,8 +23,9 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 public class FaqWorker {
 	public final Map<String, String> faq = new ConcurrentHashMap<>();
 	public final Set<Long> enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-	public FaqWorker(DiscordApi api) {
+	public final FaqManager faqManager;
+	public FaqWorker(DiscordApi api, FaqManager faqManager) {
+		this.faqManager = faqManager;
 		if (new File("channels_faq.lst").exists())
 			try (BufferedReader readerChannels = new BufferedReader(
 					new InputStreamReader(new FileInputStream("channels_cmd.lst"), StandardCharsets.UTF_8))) {
