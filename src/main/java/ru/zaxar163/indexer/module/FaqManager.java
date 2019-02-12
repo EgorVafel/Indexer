@@ -24,12 +24,17 @@ public class FaqManager {
             this.pattern = pattern;
         }
     }
+    public class FaqTemplate
+    {
+        public String main;
+        public String solutions;
+    }
     public enum FaqPatternType
     {
         COMPARE
     }
     public TreeMap<String, FaqProblem> problems = new TreeMap<>();
-    public HashMap<String, String> templates = new HashMap<>();
+    public HashMap<String, FaqTemplate> templates = new HashMap<>();
     public void addProblem(String name)
     {
         FaqProblem problem = new FaqProblem();
@@ -73,5 +78,23 @@ public class FaqManager {
     public boolean isProblem(String problemName)
     {
         return problems.containsKey(problemName);
+    }
+    public void addTemplate(String templateName, FaqTemplate template)
+    {
+        templates.put(templateName,template);
+    }
+    public void removeTemplate(String templateName)
+    {
+        templates.remove(templateName);
+    }
+    public String compileTemplate(FaqTemplate template, FaqProblem problem)
+    {
+        StringBuilder builder = new StringBuilder();
+        for(String solution : problem.solutions)
+        {
+            String appendStr = template.solutions.replace("%_SOLUTION_%", solution);
+            builder.append(appendStr);
+        }
+        return template.main.replace("%NAME%",problem.name).replace("%DESCRIPTION%", problem.description).replace("%SOLUTIONS%", builder.toString());
     }
 }
