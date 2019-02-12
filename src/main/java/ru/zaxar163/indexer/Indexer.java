@@ -104,11 +104,11 @@ public class Indexer {
 		Config config = null;
 		if (!confFile.exists()) {
 			config = new Config();
-			final JsonWriter writer = new JsonWriter(new FileWriter(confFile));
-			writer.setIndent("  ");
-			writer.setHtmlSafe(false);
-			gson.toJson(config, Config.class, writer);
-			writer.close();
+			try (final JsonWriter writer = new JsonWriter(new FileWriter(confFile))) {
+				writer.setIndent("  ");
+				writer.setHtmlSafe(false);
+				gson.toJson(config, Config.class, writer);
+			}
 			System.out.println("Created config.json");
 			System.exit(0);
 		} else

@@ -17,8 +17,8 @@ public class ListFAQ extends Command {
 	@Override
 	public void onCommand(Message message, String[] args) throws Exception {
 		message.getServerTextChannel().ifPresent(e -> {
-			w.faq.forEach((k, v) -> {
-				e.sendMessage("Ошибка: " + k + "\nРешение: " + v);
+			w.faqManager.problems.forEach((a, b) -> {
+				e.sendMessage(new StringBuilder().append("Проблема: ").append(a).append('\n').append("Решение: ").append(FaqWorker.solve(b)).toString());
 			});
 		});
 		message.delete();

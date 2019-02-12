@@ -1,18 +1,11 @@
 package ru.zaxar163.indexer.module;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,8 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 
+import ru.zaxar163.indexer.module.FaqManager.FaqProblem;
+
 public class FaqWorker {
-	public final Map<String, String> faq = new ConcurrentHashMap<>();
 	public final Set<Long> enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	public final FaqManager faqManager;
 	public FaqWorker(DiscordApi api, FaqManager faqManager) {
@@ -36,44 +30,27 @@ public class FaqWorker {
 				System.err.println("File 'channels_cmd.lst' parsing error");
 				return;
 			}
-		if (new File("msgs.lst").exists())
-			try (DataInputStream reader = new DataInputStream(new FileInputStream("msgs.lst"))) {
-				while (reader.available() > 0)
-					faq.put(reader.readUTF(), reader.readUTF());
-			} catch (final Exception ex) {
-				System.err.println("File 'msgs.lst' parsing error");
-				return;
-			}
 		api.addMessageCreateListener(e -> {
 			if (!active(e.getMessage().getServerTextChannel()))
 				return;
-			String str = e.getMessage().getContent();
-			faq.forEach((k, v) -> {
-				if (str.contains(k))
-					e.getMessage().getServerTextChannel().ifPresent(a -> a.sendMessage(v));
+			if (e.getMessage().getAuthor().isYourself()) return;
+			FaqProblem problem = faqManager.findProblem(e.getMessage().getContent());
+			if (problem == null) return;
+			StringBuilder sb = solve(problem);
+			e.getMessage().getUserAuthor().ifPresent(u -> {
+				sb.append(u.getMentionTag());
 			});
+			e.getMessage().getChannel().sendMessage(sb.toString());
 		});
+	}
 
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			try (PrintWriter readerChannels = new PrintWriter(
-					new OutputStreamWriter(new FileOutputStream("channels_faq.lst"), StandardCharsets.UTF_8))) {
-				enabledChannels.forEach(readerChannels::println);
-			} catch (final Exception ex) {
-				System.err.println(ex.toString());
-			}
-			try (DataOutputStream readerChannels = new DataOutputStream(new FileOutputStream("msgs.lst"))) {
-				faq.entrySet().forEach(e -> {
-					try {
-						readerChannels.writeUTF(e.getKey());
-						readerChannels.writeUTF(e.getValue());
-					} catch (IOException e1) {
-						System.err.println(e1.toString());
-					}
-				});
-			} catch (final Exception ex) {
-				System.err.println(ex.toString());
-			}
-		}, "Saving channels thread"));
+	public static StringBuilder solve(FaqProblem problem) {
+		StringBuilder sb = new StringBuilder();
+		problem.solutions.forEach(s -> {
+			sb.append(s);
+			sb.append('\n');
+		});
+		return sb;
 	}
 
 	private boolean active(Optional<ServerTextChannel> serverTextChannel) {
