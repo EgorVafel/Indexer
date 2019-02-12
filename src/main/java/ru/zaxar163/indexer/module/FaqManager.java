@@ -28,7 +28,7 @@ public class FaqManager {
     }
     public enum FaqPatternType
     {
-        CONTAINS
+        CONTAINS, LOW_CONTAINS, NO_SEPARATOR
     }
     public TreeMap<String, FaqProblem> problems = new TreeMap<>();
     public HashMap<String, FaqTemplate> templates = new HashMap<>();
@@ -101,9 +101,18 @@ public class FaqManager {
             FaqProblem problem = p.getValue();
             for(FaqPattern pattern : problem.patterns)
             {
-                if(pattern.pattern.equals(FaqPatternType.CONTAINS))
+                switch(pattern.pattern)
                 {
-                    if(message.contains(pattern.str)) return problem;
+
+                    case CONTAINS:
+                        if(message.contains(pattern.str)) return problem;
+                        break;
+                    case LOW_CONTAINS:
+                        if(message.toLowerCase().contains(pattern.str.toLowerCase())) return problem;
+                        break;
+                    case NO_SEPARATOR:
+                        if(message.toLowerCase().replaceAll("\\W","").contains(pattern.str.toLowerCase())) return problem;
+                        break;
                 }
             }
         }
