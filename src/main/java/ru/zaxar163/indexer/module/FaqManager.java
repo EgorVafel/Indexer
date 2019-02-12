@@ -1,9 +1,6 @@
 package ru.zaxar163.indexer.module;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.TreeMap;
+import java.util.*;
 
 public class FaqManager {
     public class FaqProblem
@@ -31,7 +28,7 @@ public class FaqManager {
     }
     public enum FaqPatternType
     {
-        COMPARE
+        CONTAINS
     }
     public TreeMap<String, FaqProblem> problems = new TreeMap<>();
     public HashMap<String, FaqTemplate> templates = new HashMap<>();
@@ -96,5 +93,20 @@ public class FaqManager {
             builder.append(appendStr);
         }
         return template.main.replace("%USERNAME%", username).replace("%NAME%",problem.name).replace("%DESCRIPTION%", problem.description).replace("%SOLUTIONS%", builder.toString());
+    }
+    public FaqProblem findProblem(String message)
+    {
+        for(Map.Entry<String,FaqProblem> p : problems.entrySet())
+        {
+            FaqProblem problem = p.getValue();
+            for(FaqPattern pattern : problem.patterns)
+            {
+                if(pattern.pattern.equals(FaqPatternType.CONTAINS))
+                {
+                    if(message.contains(pattern.str)) return problem;
+                }
+            }
+        }
+        return null;
     }
 }
