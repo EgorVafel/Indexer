@@ -64,14 +64,14 @@ public class Indexer {
 		commandManager = new CommandManager(this);
 		swearFilter = new SwearFilter(this);
 		faqManager = readFaqDataBase();
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+		/*Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			final File confFile = new File("faq.json");
 			try (JsonWriter writer = new JsonWriter(new FileWriter(confFile))) {
 				gson.toJson(faqManager, FaqManager.class, writer);
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
-		}));
+		}));*/
 		faqWorker = new FaqWorker(this);
 
 		commandManager.registerCommand(new HelpCommand(commandManager));
