@@ -24,10 +24,14 @@ public class ListFAQ extends Command {
 
 	@Override
 	public void onCommand(Message message, String[] args) throws Exception {
+		if (!message.getUserAuthor().isPresent()) {
+			message.delete();
+			return;
+		}
 		message.getServerTextChannel().ifPresent(e -> {
 			w.i.faqManager.problems.forEach((a, b) -> {
 				e.sendMessage(new StringBuilder().append("Проблема: ").append(a).append('\n').append("Решение: ")
-						.append(FaqWorker.solve(b)).toString());
+						.append(w.solve(b, message.getAuthor().asUser().get().getMentionTag())).toString());
 			});
 		});
 		message.delete();

@@ -16,13 +16,8 @@ import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.module.FaqManager.FaqProblem;
 
 public class FaqWorker {
-	public static StringBuilder solve(FaqProblem problem) {
-		final StringBuilder sb = new StringBuilder();
-		problem.solutions.forEach(s -> {
-			sb.append(s);
-			sb.append('\n');
-		});
-		return sb;
+	public String solve(FaqProblem problem, String username) {
+		return i.faqManager.compileTemplate(i.faqManager.templates.get(problem.template), problem, username);
 	}
 
 	public final Set<Long> enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -48,10 +43,7 @@ public class FaqWorker {
 			final FaqProblem problem = this.i.faqManager.findProblem(e.getMessage().getContent());
 			if (problem == null)
 				return;
-			final StringBuilder sb = solve(problem);
-			e.getMessage().getUserAuthor().ifPresent(u -> {
-				sb.append(u.getMentionTag());
-			});
+			final String sb = solve(problem, e.getMessageAuthor().asUser().isPresent() ? e.getMessageAuthor().asUser().get().getMentionTag() : "");
 			e.getMessage().getChannel().sendMessage(sb.toString());
 		});
 	}

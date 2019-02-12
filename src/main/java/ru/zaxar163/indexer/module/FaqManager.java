@@ -71,7 +71,6 @@ public class FaqManager {
 			final FaqProblem problem = p.getValue();
 			for (final FaqPattern pattern : problem.patterns)
 				switch (pattern.pattern) {
-
 				case CONTAINS:
 					if (message.contains(pattern.str))
 						return problem;
