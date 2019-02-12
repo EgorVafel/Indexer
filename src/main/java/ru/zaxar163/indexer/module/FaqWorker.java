@@ -11,16 +11,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.Message;
 
 import ru.zaxar163.indexer.Indexer;
 import ru.zaxar163.indexer.module.FaqManager.FaqProblem;
 
 public class FaqWorker {
-	public String solve(FaqProblem problem, String username) {
-		return i.faqManager.compileTemplate(i.faqManager.templates.get(problem.template), problem, username);
-	}
-
 	public final Set<Long> enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
 	public final Indexer i;
 
 	public FaqWorker(Indexer i) {
@@ -43,7 +41,7 @@ public class FaqWorker {
 			final FaqProblem problem = this.i.faqManager.findProblem(e.getMessage().getContent());
 			if (problem == null)
 				return;
-			final String sb = solve(problem, e.getMessageAuthor().asUser().isPresent() ? e.getMessageAuthor().asUser().get().getMentionTag() : "");
+			final String sb = solve(problem, e.getMessage());
 			e.getMessage().getChannel().sendMessage(sb.toString());
 		});
 	}
@@ -62,6 +60,11 @@ public class FaqWorker {
 	public void removeChannelListener(final ServerTextChannel ch) {
 		enabledChannels.removeIf(e -> e.longValue() == ch.getId());
 		ch.sendMessage("Проверка FAQ для этого канала теперь **отключена**");
+	}
+
+	public String solve(FaqProblem problem, Message username) {
+		return i.faqManager.compileTemplate(i.faqManager.templates.get(problem.template), problem,
+				username.getUserAuthor().isPresent() ? username.getUserAuthor().get().getMentionTag() : "", username);
 	}
 
 	public void work(final ServerTextChannel ch) {

@@ -1,9 +1,15 @@
 package ru.zaxar163.indexer.module;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.Message;
 
 public class FaqManager {
 	public static class FaqPattern {
@@ -33,8 +39,8 @@ public class FaqManager {
 		public String solutions;
 	}
 
-	public TreeMap<String, FaqProblem> problems = new TreeMap<>();
-	public HashMap<String, FaqTemplate> templates = new HashMap<>();
+	public SortedMap<String, FaqProblem> problems = Collections.synchronizedSortedMap(new TreeMap<>());
+	public Map<String, FaqTemplate> templates = new ConcurrentHashMap<>();
 
 	public void addPatternToProblem(String problemName, String str, FaqPatternType type) {
 		final FaqProblem problem = problems.get(problemName);
@@ -56,14 +62,23 @@ public class FaqManager {
 		templates.put(templateName, template);
 	}
 
-	public String compileTemplate(FaqTemplate template, FaqProblem problem, String username) {
+	public String compileTemplate(FaqTemplate template, FaqProblem problem, String username, Message msg) {
 		final StringBuilder builder = new StringBuilder();
 		for (final String solution : problem.solutions) {
 			final String appendStr = template.solutions.replace("%_SOLUTION_%", solution);
 			builder.append(appendStr);
 		}
-		return template.main.replace("%USERNAME%", username).replace("%NAME%", problem.name)
+		return FAQChannel(template.main, msg).replace("%USERNAME%", username).replace("%NAME%", problem.name)
 				.replace("%DESCRIPTION%", problem.description).replace("%SOLUTIONS%", builder.toString());
+	}
+
+	private String FAQChannel(String main, Message msg) {
+		final AtomicReference<ServerTextChannel> ref = new AtomicReference<>(null);
+		msg.getServer().ifPresent(e -> {
+			e.getTextChannels().stream().filter(v -> e.getName().equalsIgnoreCase("faq")).findFirst()
+					.ifPresent(ref::set);
+		});
+		return ref.get() == null ? main : main.replace("%FAQ_CHANNEL_MENTION%", ref.get().getMentionTag());
 	}
 
 	public FaqProblem findProblem(String message) {

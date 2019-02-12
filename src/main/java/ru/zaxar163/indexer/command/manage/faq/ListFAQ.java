@@ -31,7 +31,7 @@ public class ListFAQ extends Command {
 		message.getServerTextChannel().ifPresent(e -> {
 			w.i.faqManager.problems.forEach((a, b) -> {
 				e.sendMessage(new StringBuilder().append("Проблема: ").append(a).append('\n').append("Решение: ")
-						.append(w.solve(b, message.getAuthor().asUser().get().getMentionTag())).toString());
+						.append(w.solve(b, message)).toString());
 			});
 		});
 		message.delete();

@@ -7,9 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -33,14 +31,20 @@ import ru.zaxar163.indexer.module.FaqWorker;
 import ru.zaxar163.indexer.module.SwearFilter;
 
 public class Indexer {
-	public static final List<Indexer> instances = Collections.synchronizedList(new ArrayList<>(1));
+	public static final AtomicReference<Indexer> instance = new AtomicReference<>(null);
 
 	public static void main(final String[] args) throws Exception {
-		instances.add(new Indexer());
+		instance.set(new Indexer());
 		final BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
 		while (true)
-			if (r.readLine().contains("stop"))
+			switch (r.readLine()) {
+			case "stop":
 				System.exit(0);
+				break;
+			case "reloadFaq":
+				instance.get().faqManager = instance.get().readFaqDataBase();
+				break;
+			}
 	}
 
 	public final DiscordApi client;
