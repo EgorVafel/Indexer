@@ -66,9 +66,11 @@ public class FaqManager {
 
 	public String compileTemplate(FaqTemplate template, FaqProblem problem, String username, Message msg) {
 		final StringBuilder builder = new StringBuilder();
+		int index = 1;
 		for (final String solution : problem.solutions) {
-			final String appendStr = template.solutions.replace("%_SOLUTION_%", solution);
+			final String appendStr = template.solutions.replace("%_SOLUTION_%", solution).replace("%_INDEX_%", String.valueOf(index));
 			builder.append(appendStr);
+			index++;
 		}
 		return FAQChannel(template.main, msg).replace("%USERNAME%", username).replace("%NAME%", problem.name)
 				.replace("%DESCRIPTION%", problem.description).replace("%SOLUTIONS%", builder.toString());
