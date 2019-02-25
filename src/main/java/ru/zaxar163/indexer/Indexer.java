@@ -28,6 +28,7 @@ import ru.zaxar163.indexer.command.manage.faq.ListFAQ;
 import ru.zaxar163.indexer.command.manage.faq.ReloadFAQ;
 import ru.zaxar163.indexer.module.FaqManager;
 import ru.zaxar163.indexer.module.FaqWorker;
+import ru.zaxar163.indexer.module.PrivateWorker;
 import ru.zaxar163.indexer.module.SwearFilter;
 
 public class Indexer {
@@ -55,6 +56,7 @@ public class Indexer {
 	public final SwearFilter swearFilter;
 	public final FaqWorker faqWorker;
 	public FaqManager faqManager;
+	public final PrivateWorker privateWorker;
 
 	private Indexer() throws Exception {
 		config = readConfig();
@@ -73,7 +75,7 @@ public class Indexer {
 			}
 		}));*/
 		faqWorker = new FaqWorker(this);
-
+		privateWorker = new PrivateWorker(client);
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new RemoveMsgCommand());
 		commandManager.registerCommand(new RemoveMsgCommand1());
