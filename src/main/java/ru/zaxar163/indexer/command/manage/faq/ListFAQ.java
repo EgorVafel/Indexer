@@ -29,10 +29,7 @@ public class ListFAQ extends Command {
 			return;
 		}
 		message.getServerTextChannel().ifPresent(e -> {
-			w.i.faqManager.problems.forEach((a, b) -> {
-				e.sendMessage(new StringBuilder().append("Проблема: ").append(a).append('\n').append("Решение: ")
-						.append(w.solve(b, message)).toString());
-			});
+			w.i.faqManager.problems.forEach((a, b) -> e.sendMessage(w.solveList(b, message)));
 		});
 		message.delete();
 	}
