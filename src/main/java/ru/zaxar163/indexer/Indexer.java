@@ -23,6 +23,7 @@ import ru.zaxar163.indexer.command.manage.RemoveMsgCommand;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand1;
 import ru.zaxar163.indexer.command.manage.RemoveMsgCommand2;
 import ru.zaxar163.indexer.command.manage.SwearFilterCommand;
+import ru.zaxar163.indexer.command.manage.UpdatedRulesCommand;
 import ru.zaxar163.indexer.command.manage.faq.EnableFAQ;
 import ru.zaxar163.indexer.command.manage.faq.ListFAQ;
 import ru.zaxar163.indexer.command.manage.faq.ReloadFAQ;
@@ -76,6 +77,7 @@ public class Indexer {
 		}));*/
 		faqWorker = new FaqWorker(this);
 		privateWorker = new PrivateWorker(client);
+
 		commandManager.registerCommand(new HelpCommand(commandManager));
 		commandManager.registerCommand(new RemoveMsgCommand());
 		commandManager.registerCommand(new RemoveMsgCommand1());
@@ -83,6 +85,7 @@ public class Indexer {
 		commandManager.registerCommand(new SwearFilterCommand(swearFilter));
 		commandManager.registerCommand(new ExecChannelCommand(commandManager));
 
+		commandManager.registerCommand(new UpdatedRulesCommand(privateWorker));
 		commandManager.registerCommand(new EnableFAQ(faqWorker));
 		commandManager.registerCommand(new ReloadFAQ(faqWorker));
 		commandManager.registerCommand(new ListFAQ(faqWorker));

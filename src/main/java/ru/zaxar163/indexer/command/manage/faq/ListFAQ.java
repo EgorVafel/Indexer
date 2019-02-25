@@ -28,9 +28,9 @@ public class ListFAQ extends Command {
 			message.delete();
 			return;
 		}
+		message.delete();
 		message.getServerTextChannel().ifPresent(e -> {
 			w.i.faqManager.problems.forEach((a, b) -> e.sendMessage(w.solveList(b, message)));
 		});
-		message.delete();
 	}
 }

@@ -24,6 +24,7 @@ public class ReloadFAQ extends Command {
 	@Override
 	public void onCommand(Message message, String[] args) throws Exception {
 		w.i.faqManager = w.i.readFaqDataBase();
-		message.getChannel().sendMessage("Успешно перезагружены листы FAQ");
+		message.getChannel().sendMessage("Успешно перезагружены листы FAQ.");
+		message.delete();
 	}
 }
