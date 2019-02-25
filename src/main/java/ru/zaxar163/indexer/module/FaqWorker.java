@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +19,7 @@ import ru.zaxar163.indexer.module.FaqManager.FaqProblem;
 
 public class FaqWorker {
 	public final Set<Long> enabledChannels = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
+	public static final Random random = new Random();
 	public final Indexer i;
 
 	public FaqWorker(Indexer i) {
@@ -63,7 +64,8 @@ public class FaqWorker {
 	}
 
 	public String solve(FaqProblem problem, Message username) {
-		return solve(problem,username,i.faqManager.templates.get(problem.template));
+		FaqManager.FaqTemplate template = i.faqManager.templates.get(problem.template);
+		return solve(problem,username,template.altTemplates == null ? template : i.faqManager.templates.get(template.altTemplates[ random.nextInt(template.altTemplates.length) ]));
 	}
 
 	public String solveList(FaqProblem problem, Message username) {

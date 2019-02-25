@@ -37,6 +37,7 @@ public class FaqManager {
 	public static class FaqTemplate {
 		public String main;
 		public String solutions;
+		public String[] altTemplates;
 		public String listTemplate; //May be null
 	}
 
