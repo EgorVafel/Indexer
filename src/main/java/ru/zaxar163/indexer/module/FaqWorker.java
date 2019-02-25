@@ -63,7 +63,20 @@ public class FaqWorker {
 	}
 
 	public String solve(FaqProblem problem, Message username) {
-		return i.faqManager.compileTemplate(i.faqManager.templates.get(problem.template), problem,
+		return solve(problem,username,i.faqManager.templates.get(problem.template));
+	}
+
+	public String solveList(FaqProblem problem, Message username) {
+		FaqManager.FaqTemplate template = i.faqManager.templates.get(problem.template);
+		return solve(problem,username,template.listTemplate == null ? template : i.faqManager.templates.get(template.listTemplate));
+	}
+
+	public String solve(FaqProblem problem, Message username, String template) {
+		return solve(problem,username,i.faqManager.templates.get(template));
+	}
+
+	public String solve(FaqProblem problem, Message username, FaqManager.FaqTemplate template) {
+		return i.faqManager.compileTemplate(template, problem,
 				username.getUserAuthor().isPresent() ? username.getUserAuthor().get().getMentionTag() : "", username);
 	}
 

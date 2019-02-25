@@ -37,6 +37,7 @@ public class FaqManager {
 	public static class FaqTemplate {
 		public String main;
 		public String solutions;
+		public String listTemplate; //May be null
 	}
 
 	public SortedMap<String, FaqProblem> problems = Collections.synchronizedSortedMap(new TreeMap<>());
